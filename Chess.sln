@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess", "Chess\Chess.csproj", "{18A131B2-78D1-4AAE-B567-E11AB227B801}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassicChess", "ClassicChess\ClassicChess.csproj", "{B6BAE18E-F114-4394-BB18-5B565D3F462D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game", "Game\Game.csproj", "{CADE11E1-D875-429B-AADF-435A31233598}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{18A131B2-78D1-4AAE-B567-E11AB227B801}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18A131B2-78D1-4AAE-B567-E11AB227B801}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18A131B2-78D1-4AAE-B567-E11AB227B801}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18A131B2-78D1-4AAE-B567-E11AB227B801}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6BAE18E-F114-4394-BB18-5B565D3F462D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6BAE18E-F114-4394-BB18-5B565D3F462D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6BAE18E-F114-4394-BB18-5B565D3F462D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6BAE18E-F114-4394-BB18-5B565D3F462D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CADE11E1-D875-429B-AADF-435A31233598}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CADE11E1-D875-429B-AADF-435A31233598}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CADE11E1-D875-429B-AADF-435A31233598}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CADE11E1-D875-429B-AADF-435A31233598}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1489E48D-5554-4CAE-BB08-39DB5B4BFA5A}
+	EndGlobalSection
+EndGlobal
