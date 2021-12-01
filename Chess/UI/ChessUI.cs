@@ -27,6 +27,7 @@ namespace Chess.UI
                 default:
                     this.Start();
                     break;
+
             }
         }
 
