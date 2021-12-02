@@ -9,6 +9,6 @@ namespace ClassicChess.Enums.Colors
     public enum FigursColors
     {
         Red = 12,
-        Green = 10,
+        Green = 10
     }
 }

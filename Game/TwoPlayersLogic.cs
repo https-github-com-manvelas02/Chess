@@ -13,7 +13,7 @@ namespace Game
             IFigure newFigur = null;
             if (figur.IsMove(endCell))
             {
-                if (this.CanMove(startCell,endCell,board,boardFunctions))
+                if (this.CanMove(startCell, endCell, board, boardFunctions))
                 {
                     if (figur.GetType() == typeof(Knight))
                     {
@@ -35,9 +35,9 @@ namespace Game
                     {
                         newFigur = new Queen(figur.Color);
                     }
-                    else if(figur.GetType() == typeof(King))
+                    else if (figur.GetType() == typeof(King))
                     {
-                            newFigur = new King(figur.Color);
+                        newFigur = new King(figur.Color);
                     }
                     newFigur.Number = endCell.Number;
                     newFigur.Letter = endCell.Letter;
@@ -47,6 +47,32 @@ namespace Game
                 }
             }
             return false;
+        }
+
+        public bool CheckKingShah(Cell cell, Board board, FunctionsForBoard boardFunctions)
+        {
+            Cell endCell = this.GetAnotherKing(cell.Figur.Color,board);
+            Cell tempCell = new Cell(endCell);
+            if (this.CanMove(cell, tempCell, board, boardFunctions))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private Cell GetAnotherKing(FigursColors figursColors,Board board)
+        {
+            for (int i = 0; i < board.Cells.Count; i++)
+            {
+                if (board.Cells[i].Figur != null)
+                {
+                    if (board.Cells[i].Figur.GetType() == typeof(King) && board.Cells[i].Figur.Color != figursColors)
+                    {
+                        return board.Cells[i];
+                    }
+                }
+            }
+            return null;
         }
 
         private bool CanMove(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
@@ -82,9 +108,9 @@ namespace Game
                     Road = this.QueenMoveRoad(startCell, endCell, board, boardFunctions);
                     newFigur = new Queen(figur.Color);
                 }
-                else if(figur.GetType() == typeof(King))
+                else if (figur.GetType() == typeof(King))
                 {
-                    if (this.CanKingMove(startCell,endCell,board,boardFunctions))
+                    if (this.CanKingMove(startCell, endCell, board, boardFunctions))
                     {
                         return true;
                     }
@@ -256,9 +282,9 @@ namespace Game
         {
             List<IFigure> figures = new List<IFigure>();
             FigursColors figursColors = startCell.Figur.Color;
-            if (endCell.Figur == null )
+            if (endCell.Figur == null)
             {
-                if (!IsKingShah(endCell,board,figursColors,boardFunctions))
+                if (!IsKingShah(endCell, board, figursColors, boardFunctions))
                 {
                     return true;
                 }
@@ -276,9 +302,8 @@ namespace Game
             }
             return false;
         }
-        private bool IsKingShah(Cell cell,Board board,FigursColors figurColor, FunctionsForBoard boardFunctions)
+        private bool IsKingShah(Cell cell, Board board, FigursColors figurColor, FunctionsForBoard boardFunctions)
         {
-            List<IFigure> figures = new List<IFigure>();
             List<Cell> cells = new List<Cell>();
             for (int i = 0; i < board.Cells.Count; i++)
             {
@@ -286,14 +311,13 @@ namespace Game
                 {
                     if (board.Cells[i].Figur.Color != figurColor)
                     {
-                        figures.Add(board.Cells[i].Figur);
                         cells.Add(board.Cells[i]);
                     }
                 }
             }
-            for (int i = 0; i < figures.Count; i++)
+            for (int i = 0; i < cells.Count; i++)
             {
-                if (this.CanMove(cells[i],cell,board,boardFunctions))
+                if (this.CanMove(cells[i], cell, board, boardFunctions))
                 {
                     return true;
                 }

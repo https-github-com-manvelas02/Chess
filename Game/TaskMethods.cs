@@ -57,6 +57,10 @@ namespace Game
         {
             return TwoPlayersLogic.CanFigureMove(startCell, endCell, this.board, FunctionsForBoard);
         }
+        public bool CheckKingShah(Cell cell)
+        {
+            return TwoPlayersLogic.CheckKingShah(cell, this.board, FunctionsForBoard);
+        }
         #endregion
     }
 }

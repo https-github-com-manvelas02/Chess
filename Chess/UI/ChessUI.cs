@@ -1,5 +1,6 @@
 ﻿using ClassicChess.Classes;
 using ClassicChess.Classes.Figurs;
+using ClassicChess.Enums.Colors;
 using Game;
 
 namespace Chess.UI
@@ -7,6 +8,9 @@ namespace Chess.UI
     public class ChessUi
     {
         TaskMethods taskMethods = new TaskMethods();
+        bool IsGoWhite = true;
+        bool IsShah = false;
+
         public void Start()
         {
             Console.Clear();
@@ -76,14 +80,14 @@ namespace Chess.UI
             }
         }
 
-        private void PlayView()
+        private void PlayView(bool isKingShah = false, FigursColors figursColors = FigursColors.Green)
         {
             if (this.taskMethods.Figurs.Count == 0)
             {
                 this.taskMethods.CreateFigires();
                 this.taskMethods.AddFiguresOnBoard();
             }
-            this.Print();
+            this.Print(isKingShah);
             string startPos;
             string endPos;
             Cell startCell;
@@ -103,9 +107,29 @@ namespace Chess.UI
                 startCell = taskMethods.GetCellByPosition(position.Item1, position.Item2);
                 if (startCell.Figur != null)
                 {
-                    break;
+                    if (IsGoWhite)
+                    {
+                        if (startCell.Figur.Color == FigursColors.Green)
+                        {
+                            IsGoWhite = false;
+                            break;
+                        }
+                        Console.WriteLine("Please select the Green Figure Position");
+                    }
+                    else
+                    {
+                        if (startCell.Figur.Color == FigursColors.Red)
+                        {
+                            IsGoWhite = true;
+                            break;
+                        }
+                        Console.WriteLine("Please select the Red Figure Position");
+                    }
                 }
-                Console.WriteLine("please select the position where there is a figure");
+                else
+                {
+                    Console.WriteLine("please select the position where there is a figure");
+                }
             }
             while (true)
             {
@@ -122,14 +146,13 @@ namespace Chess.UI
                 Cell endCell = taskMethods.GetCellByPosition(position.Item1, position.Item2);
                 if (taskMethods.CanFigureMove(startCell, endCell))
                 {
-                    this.PlayView();
+                    this.PlayView(this.taskMethods.CheckKingShah(endCell),endCell.Figur.Color);
                 }
                 Console.WriteLine("You cant move the selected position please select another position");
             }
-
         }
 
-        private void Print()
+        private void Print(bool isShah = false,FigursColors figursColors = FigursColors.Green)
         {
             Console.Clear();
             for (int i = 0; i < this.taskMethods.board.Width / 2; i++)
@@ -147,6 +170,13 @@ namespace Chess.UI
                     {
                         toWrite = $"{(this.taskMethods.board.Cells[j].Figur.GetType().Name)[0]}{(this.taskMethods.board.Cells[j].Figur.GetType().Name)[1]}";
                         Console.ForegroundColor = (ConsoleColor)this.taskMethods.board.Cells[j].Figur.Color;
+                        if (isShah)
+                        {
+                            if (this.taskMethods.board.Cells[j].Figur.Color != figursColors)
+                            {
+                                Console.BackgroundColor = ConsoleColor.DarkYellow;
+                            }
+                        }
                     }
                     else
                     {
@@ -165,6 +195,5 @@ namespace Chess.UI
                 Console.Write($"{this.taskMethods.board.Letters[i]} ");
             }
         }
-
     }
 }
