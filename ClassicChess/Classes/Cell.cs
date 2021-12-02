@@ -6,6 +6,13 @@ namespace ClassicChess.Classes
 {
     public class Cell
     {
+        public Cell(Cell cell)
+        {
+            this.Number = cell.Number;
+            this.Color =  cell.Color;
+            this.Figur =  cell.Figur;
+            this.Letter = cell.Letter;
+        }
         public Cell(Numbers number, Letters letter, CellsColors color)
         {
             this.Color = color;

@@ -9,6 +9,49 @@ namespace Game
     {
         public bool CanFigureMove(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
         {
+            IFigure figur = startCell.Figur;
+            IFigure newFigur = null;
+            if (figur.IsMove(endCell))
+            {
+                if (this.CanMove(startCell,endCell,board,boardFunctions))
+                {
+                    if (figur.GetType() == typeof(Knight))
+                    {
+                        newFigur = new Knight(figur.Color);
+                    }
+                    else if (figur.GetType() == typeof(Pawn))
+                    {
+                        newFigur = new Pawn(figur.Color);
+                    }
+                    else if (figur.GetType() == typeof(Bishop))
+                    {
+                        newFigur = new Bishop(figur.Color);
+                    }
+                    else if (figur.GetType() == typeof(Rook))
+                    {
+                        newFigur = new Rook(figur.Color);
+                    }
+                    else if (figur.GetType() == typeof(Queen))
+                    {
+                        newFigur = new Queen(figur.Color);
+                    }
+                    else if(figur.GetType() == typeof(King))
+                    {
+                            newFigur = new King(figur.Color);
+                    }
+                    newFigur.Number = endCell.Number;
+                    newFigur.Letter = endCell.Letter;
+                    board.Cells.FirstOrDefault(cell => cell == endCell).Figur = newFigur;
+                    board.Cells.FirstOrDefault(cell => cell == startCell).Figur = null;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool CanMove(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
+        {
+
             List<Cell> Road = new List<Cell>();
 
             IFigure figur = startCell.Figur;
@@ -17,11 +60,6 @@ namespace Game
             {
                 if (figur.GetType() == typeof(Knight))
                 {
-                    newFigur = new Knight(startCell.Figur.Color);
-                    newFigur.Number = endCell.Number;
-                    newFigur.Letter = endCell.Letter;
-                    board.Cells.FirstOrDefault(cell => cell == endCell).Figur = newFigur;
-                    board.Cells.FirstOrDefault(cell => cell == startCell).Figur = null;
                     return true;
                 }
                 else if (figur.GetType() == typeof(Pawn))
@@ -44,13 +82,17 @@ namespace Game
                     Road = this.QueenMoveRoad(startCell, endCell, board, boardFunctions);
                     newFigur = new Queen(figur.Color);
                 }
-                /*else if(figur.GetType() == typeof(King))
+                else if(figur.GetType() == typeof(King))
                 {
                     if (this.CanKingMove(startCell,endCell,board,boardFunctions))
                     {
-
+                        return true;
                     }
-                }*/
+                    else
+                    {
+                        return false;
+                    }
+                }
                 for (int i = 0; i < Road.Count; i++)
                 {
                     if (Road[i].Figur != null)
@@ -58,10 +100,6 @@ namespace Game
                         return false;
                     }
                 }
-                newFigur.Number = endCell.Number;
-                newFigur.Letter = endCell.Letter;
-                board.Cells.FirstOrDefault(cell => cell == endCell).Figur = newFigur;
-                board.Cells.FirstOrDefault(cell => cell == startCell).Figur = null;
                 return true;
             }
             return false;
@@ -214,15 +252,54 @@ namespace Game
             }
             return queenRoad;
         }
-        /*private bool CanKingMove(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
+        private bool CanKingMove(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
         {
             List<IFigure> figures = new List<IFigure>();
             FigursColors figursColors = startCell.Figur.Color;
-            if (endCell.Figur == null)
+            if (endCell.Figur == null )
             {
-
+                if (!IsKingShah(endCell,board,figursColors,boardFunctions))
+                {
+                    return true;
+                }
             }
-        }*/
+            else
+            {
+                if (endCell.Figur.Color != figursColors)
+                {
+                    Cell tempCell = new Cell(endCell);
+                    if (!IsKingShah(tempCell, board, figursColors, boardFunctions))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        private bool IsKingShah(Cell cell,Board board,FigursColors figurColor, FunctionsForBoard boardFunctions)
+        {
+            List<IFigure> figures = new List<IFigure>();
+            List<Cell> cells = new List<Cell>();
+            for (int i = 0; i < board.Cells.Count; i++)
+            {
+                if (board.Cells[i].Figur != null)
+                {
+                    if (board.Cells[i].Figur.Color != figurColor)
+                    {
+                        figures.Add(board.Cells[i].Figur);
+                        cells.Add(board.Cells[i]);
+                    }
+                }
+            }
+            for (int i = 0; i < figures.Count; i++)
+            {
+                if (this.CanMove(cells[i],cell,board,boardFunctions))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
         private List<IFigure> GetFigures(Board board, FigursColors figursColors)
         {
             List<IFigure> figures = new List<IFigure>();

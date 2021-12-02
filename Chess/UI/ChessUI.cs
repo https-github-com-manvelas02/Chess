@@ -27,7 +27,6 @@ namespace Chess.UI
                 default:
                     this.Start();
                     break;
-
             }
         }
 
@@ -82,8 +81,8 @@ namespace Chess.UI
             if (this.taskMethods.Figurs.Count == 0)
             {
                 this.taskMethods.CreateFigires();
+                this.taskMethods.AddFiguresOnBoard();
             }
-            this.taskMethods.AddFiguresOnBoard();
             this.Print();
             string startPos;
             string endPos;
@@ -147,6 +146,7 @@ namespace Chess.UI
                     else if (this.taskMethods.board.Cells[j].Figur.GetType() == typeof(King))
                     {
                         toWrite = $"{(this.taskMethods.board.Cells[j].Figur.GetType().Name)[0]}{(this.taskMethods.board.Cells[j].Figur.GetType().Name)[1]}";
+                        Console.ForegroundColor = (ConsoleColor)this.taskMethods.board.Cells[j].Figur.Color;
                     }
                     else
                     {
