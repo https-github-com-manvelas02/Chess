@@ -58,7 +58,6 @@ namespace Game
             Knight knight = new Knight(FigursColors.Green);
             return knight;
         }
-
         /// <summary>
         /// This function find all posiible positions start cell to end cell
         /// </summary>

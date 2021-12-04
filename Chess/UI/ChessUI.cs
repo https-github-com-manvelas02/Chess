@@ -5,12 +5,19 @@ using Game;
 
 namespace Chess.UI
 {
+    /// <summary>
+    /// This class is responsible for working with the User Interface
+    /// </summary>
     public class ChessUi
     {
         TaskMethods taskMethods = new TaskMethods();
         bool IsGoWhite = true;
         bool IsShah = false;
+        FigursColors figursColors;
 
+        /// <summary>
+        /// The function is for launch the game menu
+        /// </summary>
         public void Start()
         {
             Console.Clear();
@@ -33,7 +40,9 @@ namespace Chess.UI
                     break;
             }
         }
-
+        /// <summary>
+        /// The function is starting for play with only knight
+        /// </summary>
         private void PlayWithKnight()
         {
             this.Print();
@@ -69,7 +78,7 @@ namespace Chess.UI
             {
                 if (taskMethods.CanFigureMove(steps[i], steps[i + 1]))
                 {
-                    Thread.Sleep(2000);
+                    Thread.Sleep(1000);
                     this.Print();
                 }
             }
@@ -78,16 +87,19 @@ namespace Chess.UI
             {
                 Console.Write($"\n{item.Letter}{(int)item.Number}");
             }
+            Console.WriteLine($"\nThe total moves count is : {steps.Count - 1}");
         }
-
-        private void PlayView(bool isKingShah = false, FigursColors figursColors = FigursColors.Green)
+        /// <summary>
+        /// This function launches two players game process
+        /// </summary>
+        private void PlayView()
         {
             if (this.taskMethods.Figurs.Count == 0)
             {
                 this.taskMethods.CreateFigires();
                 this.taskMethods.AddFiguresOnBoard();
             }
-            this.Print(isKingShah);
+            this.Print();
             string startPos;
             string endPos;
             Cell startCell;
@@ -146,13 +158,20 @@ namespace Chess.UI
                 Cell endCell = taskMethods.GetCellByPosition(position.Item1, position.Item2);
                 if (taskMethods.CanFigureMove(startCell, endCell))
                 {
-                    this.PlayView(this.taskMethods.CheckKingShah(endCell),endCell.Figur.Color);
+                    IsShah = this.taskMethods.CheckKingShah(endCell);
+                    if (IsShah)
+                    {
+                        figursColors = endCell.Figur.Color;
+                    }
+                    this.PlayView();
                 }
                 Console.WriteLine("You cant move the selected position please select another position");
             }
         }
-
-        private void Print(bool isShah = false,FigursColors figursColors = FigursColors.Green)
+        /// <summary>
+        /// The function prints chess board and figures
+        /// </summary>
+        private void Print()
         {
             Console.Clear();
             for (int i = 0; i < this.taskMethods.board.Width / 2; i++)
@@ -170,7 +189,7 @@ namespace Chess.UI
                     {
                         toWrite = $"{(this.taskMethods.board.Cells[j].Figur.GetType().Name)[0]}{(this.taskMethods.board.Cells[j].Figur.GetType().Name)[1]}";
                         Console.ForegroundColor = (ConsoleColor)this.taskMethods.board.Cells[j].Figur.Color;
-                        if (isShah)
+                        if (IsShah)
                         {
                             if (this.taskMethods.board.Cells[j].Figur.Color != figursColors)
                             {

@@ -339,13 +339,13 @@ namespace Game
             return queenRoad;
         }
         /// <summary>
-        /// 
+        /// The function checks whether a king can move to the target position or not
         /// </summary>
-        /// <param name="startCell"></param>
-        /// <param name="endCell"></param>
-        /// <param name="board"></param>
-        /// <param name="boardFunctions"></param>
-        /// <returns></returns>
+        /// <param name="startCell">The figure start cell</param>
+        /// <param name="endCell">The target cell</param>
+        /// <param name="board">The board we are playing on</param>
+        /// <param name="boardFunctions">The instance for  use board functions</param>
+        /// <returns>True if king can move to the target position.Otherwise False</returns>
         private bool CanKingMove(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
         {
             List<IFigure> figures = new List<IFigure>();
@@ -361,7 +361,8 @@ namespace Game
             {
                 if (endCell.Figur.Color != figursColors)
                 {
-                    if (!IsKingShah(endCell, board, figursColors, boardFunctions))
+                    Cell tempCell = new Cell(endCell);
+                    if (!IsKingShah(tempCell, board, figursColors, boardFunctions))
                     {
                         return true;
                     }
@@ -369,6 +370,14 @@ namespace Game
             }
             return false;
         }
+        /// <summary>
+        /// The function checks is there shah or not
+        /// </summary>
+        /// <param name="cell">Cell for the possible shah</param>
+        /// <param name="board">The board we are playing on</param>
+        /// <param name="figurColor">The current color for the selected king figure</param>
+        /// <param name="boardFunctions">The instance for  use board functions</param>
+        /// <returns>True if the selected king's next move will be under shah.Otherwise false </returns>
         private bool IsKingShah(Cell cell, Board board, FigursColors figurColor, FunctionsForBoard boardFunctions)
         {
             List<Cell> cells = new List<Cell>();
@@ -390,18 +399,6 @@ namespace Game
                 }
             }
             return false;
-        }
-        private List<IFigure> GetFigures(Board board, FigursColors figursColors)
-        {
-            List<IFigure> figures = new List<IFigure>();
-            for (int i = 0; i < board.Cells.Count; i++)
-            {
-                if (board.Cells[i].Figur.Color != figursColors)
-                {
-                    figures.Add(board.Cells[i].Figur);
-                }
-            }
-            return figures;
         }
     }
 }

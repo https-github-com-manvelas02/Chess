@@ -9,6 +9,13 @@ namespace ClassicChess.Classes
     /// </summary>
     public class Cell
     {
+        public Cell(Cell cell)
+        {
+            cell.Color = this.Color;
+            cell.Letter = this.Letter;
+            cell.Number = this.Number;
+            cell.Figur = null;
+        }
         public Cell(Numbers number, Letters letter, CellsColors color)
         {
             this.Color = color;
