@@ -4,15 +4,11 @@ using ClassicChess.Enums.Colors;
 
 namespace ClassicChess.Classes
 {
+    /// <summary>
+    /// This class is about a chess cell
+    /// </summary>
     public class Cell
     {
-        public Cell(Cell cell)
-        {
-            this.Number = cell.Number;
-            this.Color =  cell.Color;
-            this.Figur =  cell.Figur;
-            this.Letter = cell.Letter;
-        }
         public Cell(Numbers number, Letters letter, CellsColors color)
         {
             this.Color = color;

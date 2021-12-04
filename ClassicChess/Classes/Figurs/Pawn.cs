@@ -4,6 +4,9 @@ using ClassicChess.Enums.Colors;
 
 namespace ClassicChess.Classes.Figurs
 {
+    /// <summary>
+    /// This class is about the chess piece of the Pawn
+    /// </summary>
     public class Pawn : IFigure
     {
         public Pawn(FigursColors color)

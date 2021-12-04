@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace ClassicChess.Classes.Figurs
 {
+    /// <summary>
+    /// This class is about the chess piece of the Queen
+    /// </summary>
     public class Queen : IFigure
     {
 

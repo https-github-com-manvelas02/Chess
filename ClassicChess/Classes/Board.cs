@@ -3,6 +3,9 @@ using ClassicChess.Enums.Colors;
 
 namespace ClassicChess.Classes
 {
+    /// <summary>
+    /// This class is about a chess board
+    /// </summary>
     public class Board
     {
         public Board()
@@ -17,6 +20,9 @@ namespace ClassicChess.Classes
         public List<char> Letters { get; set; } = new List<char> { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H' };
         public List<Cell> Cells { get; private set; } = new List<Cell>(64);
 
+        /// <summary>
+        /// This function creates a standard chessboard
+        /// </summary>
         private void CreateBoard()
         {
             for (int i = 0; i < 8; i++)

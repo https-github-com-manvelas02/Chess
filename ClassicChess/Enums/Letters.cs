@@ -1,5 +1,8 @@
 ﻿namespace ClassicChess.Enums
 {
+    /// <summary>
+    /// Specifies constants that define the board letters.
+    /// </summary>
     public enum Letters
     {
         A = 65,

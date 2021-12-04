@@ -4,6 +4,9 @@ using ClassicChess.Enums.Colors;
 
 namespace ClassicChess.Classes.Figurs
 {
+    /// <summary>
+    /// This class is about the chess piece of the King
+    /// </summary>
     public class King : IFigure
     {
         public King(FigursColors color)

@@ -1,5 +1,8 @@
 ﻿namespace ClassicChess.Enums
 {
+    /// <summary>
+    /// Specifies constants that define the board numbers.
+    /// </summary>
     public enum Numbers
     {
         one = 1,

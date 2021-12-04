@@ -5,8 +5,19 @@ using ClassicChess.Enums.Colors;
 
 namespace Game
 {
+    /// <summary>
+    /// This class is responsible for working with the two players game process
+    /// </summary>
     public class TwoPlayersLogic
     {
+        /// <summary>
+        /// This function determines whether the figure can be moved
+        /// </summary>
+        /// <param name="startCell">The figure start cell</param>
+        /// <param name="endCell">The target cell</param>
+        /// <param name="board">The board we are playing on</param>
+        /// <param name="boardFunctions">The instance for  use board functions</param>
+        /// <returns>True if the figure can move.Otherwise false</returns>
         public bool CanFigureMove(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
         {
             IFigure figur = startCell.Figur;
@@ -48,18 +59,28 @@ namespace Game
             }
             return false;
         }
-
+        /// <summary>
+        /// This function checks whether the figure has given a shah to the opponent's king
+        /// </summary>
+        /// <param name="cell">The figure cell</param>
+        /// <param name="board">The board we are playing on</param>
+        /// <param name="boardFunctions">The instance for  use board functions</param>
+        /// <returns>True if figure shah to the opponent's king.Otherwise false</returns>
         public bool CheckKingShah(Cell cell, Board board, FunctionsForBoard boardFunctions)
         {
             Cell endCell = this.GetAnotherKing(cell.Figur.Color,board);
-            Cell tempCell = new Cell(endCell);
-            if (this.CanMove(cell, tempCell, board, boardFunctions))
+            if (this.CanMove(cell, endCell, board, boardFunctions))
             {
                 return true;
             }
             return false;
         }
-
+        /// <summary>
+        /// This function give another King
+        /// </summary>
+        /// <param name="figursColors">The color we want to find the king of the opposite color</param>
+        /// <param name="board">The board we are playing on</param>
+        /// <returns>The another King Cell</returns>
         private Cell GetAnotherKing(FigursColors figursColors,Board board)
         {
             for (int i = 0; i < board.Cells.Count; i++)
@@ -74,7 +95,14 @@ namespace Game
             }
             return null;
         }
-
+        /// <summary>
+        /// This function determines can practically move the figure
+        /// </summary>
+        /// <param name="startCell">The figure start cell</param>
+        /// <param name="endCell">The target cell</param>
+        /// <param name="board">The board we are playing on</param>
+        /// <param name="boardFunctions">The instance for  use board functions</param>
+        /// <returns>True if the figure can move.Otherwise false</returns>
         private bool CanMove(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
         {
 
@@ -130,6 +158,14 @@ namespace Game
             }
             return false;
         }
+        /// <summary>
+        /// The function give Pawn move Road
+        /// </summary>
+        /// <param name="startCell">The figure start cell</param>
+        /// <param name="endCell">The target cell</param>
+        /// <param name="board">The board we are playing on</param>
+        /// <param name="boardFunctions">The instance for  use board functions</param>
+        /// <returns>The Pawn move Road List by steps </returns>
         private List<Cell> PawnMoveRoad(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
         {
             List<Cell> list = new List<Cell>();
@@ -149,6 +185,14 @@ namespace Game
             }
             return list;
         }
+        /// <summary>
+        /// The function give Bishop move Road
+        /// </summary>
+        /// <param name="startCell">The figure start cell</param>
+        /// <param name="endCell">The target cell</param>
+        /// <param name="board">The board we are playing on</param>
+        /// <param name="boardFunctions">The instance for  use board functions</param>
+        /// <returns>The Bishop move Road List by steps </returns>
         private List<Cell> BishopMoveRoad(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
         {
             List<Cell> bishopRoad = new List<Cell>();
@@ -215,6 +259,14 @@ namespace Game
             }
             return bishopRoad;
         }
+        /// <summary>
+        /// The function give Rook move Road
+        /// </summary>
+        /// <param name="startCell">The figure start cell</param>
+        /// <param name="endCell">The target cell</param>
+        /// <param name="board">The board we are playing on</param>
+        /// <param name="boardFunctions">The instance for  use board functions</param>
+        /// <returns>The Rook move Road List by steps </returns>
         private List<Cell> RookMoveRoad(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
         {
             List<Cell> rookRoad = new List<Cell>();
@@ -265,6 +317,14 @@ namespace Game
                 return rookRoad;
             }
         }
+        /// <summary>
+        /// The function give Queen move Road
+        /// </summary>
+        /// <param name="startCell">The figure start cell</param>
+        /// <param name="endCell">The target cell</param>
+        /// <param name="board">The board we are playing on</param>
+        /// <param name="boardFunctions">The instance for  use board functions</param>
+        /// <returns>The Queen move Road List by steps </returns>
         private List<Cell> QueenMoveRoad(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
         {
             List<Cell> queenRoad = new List<Cell>();
@@ -278,6 +338,14 @@ namespace Game
             }
             return queenRoad;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="startCell"></param>
+        /// <param name="endCell"></param>
+        /// <param name="board"></param>
+        /// <param name="boardFunctions"></param>
+        /// <returns></returns>
         private bool CanKingMove(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
         {
             List<IFigure> figures = new List<IFigure>();
@@ -293,8 +361,7 @@ namespace Game
             {
                 if (endCell.Figur.Color != figursColors)
                 {
-                    Cell tempCell = new Cell(endCell);
-                    if (!IsKingShah(tempCell, board, figursColors, boardFunctions))
+                    if (!IsKingShah(endCell, board, figursColors, boardFunctions))
                     {
                         return true;
                     }

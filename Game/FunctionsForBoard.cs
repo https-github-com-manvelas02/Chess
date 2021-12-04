@@ -6,8 +6,16 @@ using ClassicChess.Enums.Colors;
 
 namespace Game
 {
+    /// <summary>
+    /// This class is responsible for working with the chessboard
+    /// </summary>
     public class FunctionsForBoard
     {
+        /// <summary>
+        /// This function checks whether the position is on the chessboard or not
+        /// </summary>
+        /// <param name="position">This is the position we want to know</param>
+        /// <returns>This function will return true if there is a cell in that position և that cell is on the chessboard. Otherwise false</returns>
         public bool IsTruePosition(string position)
         {
             if (position.Length == 2)
@@ -38,6 +46,11 @@ namespace Game
             }
             return false;
         }
+        /// <summary>
+        /// This function gives the cell coordinates
+        /// </summary>
+        /// <param name="position">The position of the cell in which we will find the coordinates</param>
+        /// <returns>Int32 as a cell number and Char as a cell letter</returns>
         public (int, char) GetPosition(string position)
         {
             int digitePosition = 0;
@@ -55,6 +68,13 @@ namespace Game
 
             return (digite, letter);
         }
+        /// <summary>
+        /// This function finds the cell from the board according to the cell coordinates
+        /// </summary>
+        /// <param name="num">The cell number</param>
+        /// <param name="letter">The cell Letter</param>
+        /// <param name="board">The board from which we want to find the cell</param>
+        /// <returns>The cell he found</returns>
         public Cell GetCellByPosition(int num, char letter, Board board)
         {
             for (int i = 0; i < board.Cells.Count; i++)
@@ -66,6 +86,10 @@ namespace Game
             }
             return null;
         }
+        /// <summary>
+        /// Function for creating chess figures
+        /// </summary>
+        /// <returns>The created Figure list</returns>
         public List<IFigure> CreateFigires()
         {
             List<IFigure> Figurs = new List<IFigure>();
@@ -105,6 +129,12 @@ namespace Game
             }
             return Figurs;
         }
+        /// <summary>
+        /// This function add the created figures in board
+        /// </summary>
+        /// <param name="Figurs">The figures List</param>
+        /// <param name="board">The board on which we want to line up the figures</param>
+        /// <returns>The already finished board lined up with the figures</returns>
         public Board AddFiguresOnBoard(List<IFigure> Figurs, Board board)
         {
             if (CanAddFiguresOnBoard(board))
@@ -128,6 +158,24 @@ namespace Game
             }
             return board;
         }
+        /// <summary>
+        /// This function add Knight in the board
+        /// </summary>
+        /// <param name="cell">The cell you want to add</param>
+        /// <param name="board">The board you want to add</param>
+        /// <param name="knight">Knight to be added to the given cell on the given board</param>
+        public void AddKnightToBoard(Cell cell, Board board, Knight knight)
+        {
+            board.Cells.FirstOrDefault(c => c == cell).Figur = knight;
+            board.Cells.FirstOrDefault(c => c == cell).Figur.Number = cell.Number;
+            board.Cells.FirstOrDefault(c => c == cell).Figur.Letter = cell.Letter;
+        }
+
+        /// <summary>
+        /// This function checks if we can add figures to the board
+        /// </summary>
+        /// <param name="board">The board we want to check</param>
+        /// <returns>True if there is no figure on the board. Otherwise false</returns>
         private bool CanAddFiguresOnBoard(Board board)
         {
             for (int i = 0; i < board.Cells.Count; i++)
@@ -138,12 +186,6 @@ namespace Game
                 }
             }
             return true;
-        }
-        public void AddKnightToBoard(Cell cell, Board board, Knight knight)
-        {
-            board.Cells.FirstOrDefault(c => c == cell).Figur = knight;
-            board.Cells.FirstOrDefault(c => c == cell).Figur.Number = cell.Number;
-            board.Cells.FirstOrDefault(c => c == cell).Figur.Letter = cell.Letter;
         }
     }
 }
