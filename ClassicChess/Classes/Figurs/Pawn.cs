@@ -32,7 +32,14 @@ namespace ClassicChess.Classes.Figurs
                             }
                         }
                     }
-                    else if (Math.Abs(this.Letter - cell.Letter) == 1 && cell.Number - this.Number == 1)
+                    else if (this.Letter == cell.Letter && cell.Number - this.Number == 1)
+                    {
+                        if (cell.Figur == null)
+                        {
+                            return true;
+                        }
+                    }
+                    if (Math.Abs(this.Letter - cell.Letter) == 1 && cell.Number - this.Number == 1)
                     {
                         if (cell.Figur != null)
                         {
@@ -40,13 +47,6 @@ namespace ClassicChess.Classes.Figurs
                             {
                                 return true;
                             }
-                        }
-                    }
-                    else if (this.Letter == cell.Letter && cell.Number - this.Number == 1)
-                    {
-                        if (cell.Figur == null)
-                        {
-                            return true;
                         }
                     }
                 }
@@ -62,7 +62,14 @@ namespace ClassicChess.Classes.Figurs
                             }
                         }
                     }
-                    else if (Math.Abs(this.Letter - cell.Letter) == 1 && this.Number - cell.Number == 1)
+                    else if (this.Letter == cell.Letter && this.Number - cell.Number == 1)
+                    {
+                        if (cell.Figur == null)
+                        {
+                            return true;
+                        }
+                    }
+                    if (Math.Abs(this.Letter - cell.Letter) == 1 && this.Number - cell.Number == 1)
                     {
                         if (cell.Figur != null)
                         {
@@ -70,13 +77,6 @@ namespace ClassicChess.Classes.Figurs
                             {
                                 return true;
                             }
-                        }
-                    }
-                    else if (this.Letter == cell.Letter && this.Number - cell.Number == 1)
-                    {
-                        if (cell.Figur == null)
-                        {
-                            return true;
                         }
                     }
                 }

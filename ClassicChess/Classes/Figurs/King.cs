@@ -14,7 +14,6 @@ namespace ClassicChess.Classes.Figurs
             this.Color = color;
         }
 
-
         public Numbers Number { get; set; }
         public Letters Letter { get; set; }
         public FigursColors Color { get; }
@@ -34,10 +33,6 @@ namespace ClassicChess.Classes.Figurs
                         if (cell.Figur.Color != this.Color)
                         {
                             return true;
-                        }
-                        else
-                        {
-                            return false;
                         }
                     }
                 }

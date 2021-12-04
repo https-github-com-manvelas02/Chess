@@ -11,10 +11,10 @@ namespace ClassicChess.Classes
     {
         public Cell(Cell cell)
         {
-            cell.Color = this.Color;
-            cell.Letter = this.Letter;
-            cell.Number = this.Number;
-            cell.Figur = null;
+            this.Color =  cell.Color;
+            this.Letter = cell.Letter;
+            this.Number = cell.Number;
+            this.Figur = null;
         }
         public Cell(Numbers number, Letters letter, CellsColors color)
         {

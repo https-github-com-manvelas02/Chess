@@ -15,7 +15,7 @@ namespace Game
         /// This function checks whether the position is on the chessboard or not
         /// </summary>
         /// <param name="position">This is the position we want to know</param>
-        /// <returns>This function will return true if there is a cell in that position և that cell is on the chessboard. Otherwise false</returns>
+        /// <returns>This function will return true if there is a cell in that position and that cell is on the chessboard. Otherwise false</returns>
         public bool IsTruePosition(string position)
         {
             if (position.Length == 2)
@@ -46,6 +46,7 @@ namespace Game
             }
             return false;
         }
+        
         /// <summary>
         /// This function gives the cell coordinates
         /// </summary>
@@ -54,7 +55,7 @@ namespace Game
         public (int, char) GetPosition(string position)
         {
             int digitePosition = 0;
-            int digite = 0;
+            int digite;
             char letter;
             bool isDigite = int.TryParse(position[digitePosition].ToString(), out digite);
             if (!isDigite)
@@ -68,6 +69,7 @@ namespace Game
 
             return (digite, letter);
         }
+        
         /// <summary>
         /// This function finds the cell from the board according to the cell coordinates
         /// </summary>
@@ -86,6 +88,7 @@ namespace Game
             }
             return null;
         }
+        
         /// <summary>
         /// Function for creating chess figures
         /// </summary>
@@ -129,6 +132,7 @@ namespace Game
             }
             return Figurs;
         }
+        
         /// <summary>
         /// This function add the created figures in board
         /// </summary>
@@ -139,25 +143,26 @@ namespace Game
         {
             if (CanAddFiguresOnBoard(board))
             {
-                int j = 0;
+                int cellIndex = 0;
                 for (int i = 0; i < Figurs.Count; i++)
                 {
                     if (i == Figurs.Count / 2)
                     {
-                        j = 56;
+                        cellIndex = 56;
                     }
                     else if (i == Figurs.Count - 8)
                     {
-                        j = 48;
+                        cellIndex = 48;
                     }
-                    board.Cells[j].Figur = Figurs[i];
-                    board.Cells[j].Figur.Number = board.Cells[j].Number;
-                    board.Cells[j].Figur.Letter = board.Cells[j].Letter;
-                    j++;
+                    board.Cells[cellIndex].Figur = Figurs[i];
+                    board.Cells[cellIndex].Figur.Number = board.Cells[cellIndex].Number;
+                    board.Cells[cellIndex].Figur.Letter = board.Cells[cellIndex].Letter;
+                    cellIndex++;
                 }
             }
             return board;
         }
+        
         /// <summary>
         /// This function add Knight in the board
         /// </summary>

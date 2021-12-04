@@ -26,7 +26,8 @@ namespace ClassicChess.Classes.Figurs
         {
             if (!IsSamePos(cell))
             {
-                if (Math.Abs(this.Number - cell.Number) == Math.Abs(this.Letter - cell.Letter) || this.Number == cell.Number || this.Letter == cell.Letter)
+                if (Math.Abs(this.Number - cell.Number) == Math.Abs(this.Letter - cell.Letter) 
+                    || this.Number == cell.Number || this.Letter == cell.Letter)
                 {
                     if (cell.Figur == null)
                     {
@@ -37,10 +38,6 @@ namespace ClassicChess.Classes.Figurs
                         if (cell.Figur.Color != this.Color)
                         {
                             return true;
-                        }
-                        else
-                        {
-                            return false;
                         }
                     }
                 }

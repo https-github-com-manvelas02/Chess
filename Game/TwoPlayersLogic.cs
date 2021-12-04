@@ -22,41 +22,39 @@ namespace Game
         {
             IFigure figur = startCell.Figur;
             IFigure newFigur = null;
-            if (figur.IsMove(endCell))
+            if (this.CanMove(startCell, endCell, board, boardFunctions))
             {
-                if (this.CanMove(startCell, endCell, board, boardFunctions))
+                if (figur.GetType() == typeof(Knight))
                 {
-                    if (figur.GetType() == typeof(Knight))
-                    {
-                        newFigur = new Knight(figur.Color);
-                    }
-                    else if (figur.GetType() == typeof(Pawn))
-                    {
-                        newFigur = new Pawn(figur.Color);
-                    }
-                    else if (figur.GetType() == typeof(Bishop))
-                    {
-                        newFigur = new Bishop(figur.Color);
-                    }
-                    else if (figur.GetType() == typeof(Rook))
-                    {
-                        newFigur = new Rook(figur.Color);
-                    }
-                    else if (figur.GetType() == typeof(Queen))
-                    {
-                        newFigur = new Queen(figur.Color);
-                    }
-                    else if (figur.GetType() == typeof(King))
-                    {
-                        newFigur = new King(figur.Color);
-                    }
-                    newFigur.Number = endCell.Number;
-                    newFigur.Letter = endCell.Letter;
-                    board.Cells.FirstOrDefault(cell => cell == endCell).Figur = newFigur;
-                    board.Cells.FirstOrDefault(cell => cell == startCell).Figur = null;
-                    return true;
+                    newFigur = new Knight(figur.Color);
                 }
+                else if (figur.GetType() == typeof(Pawn))
+                {
+                    newFigur = new Pawn(figur.Color);
+                }
+                else if (figur.GetType() == typeof(Bishop))
+                {
+                    newFigur = new Bishop(figur.Color);
+                }
+                else if (figur.GetType() == typeof(Rook))
+                {
+                    newFigur = new Rook(figur.Color);
+                }
+                else if (figur.GetType() == typeof(Queen))
+                {
+                    newFigur = new Queen(figur.Color);
+                }
+                else if (figur.GetType() == typeof(King))
+                {
+                    newFigur = new King(figur.Color);
+                }
+                newFigur.Number = endCell.Number;
+                newFigur.Letter = endCell.Letter;
+                board.Cells.FirstOrDefault(cell => cell == endCell).Figur = newFigur;
+                board.Cells.FirstOrDefault(cell => cell == startCell).Figur = null;
+                return true;
             }
+
             return false;
         }
         /// <summary>
@@ -65,10 +63,10 @@ namespace Game
         /// <param name="cell">The figure cell</param>
         /// <param name="board">The board we are playing on</param>
         /// <param name="boardFunctions">The instance for  use board functions</param>
-        /// <returns>True if figure shah to the opponent's king.Otherwise false</returns>
+        /// <returns>True if the figure shah to the opponent's king.Otherwise false</returns>
         public bool CheckKingShah(Cell cell, Board board, FunctionsForBoard boardFunctions)
         {
-            Cell endCell = this.GetAnotherKing(cell.Figur.Color,board);
+            Cell endCell = this.GetOpponentKing(cell.Figur.Color, board);
             if (this.CanMove(cell, endCell, board, boardFunctions))
             {
                 return true;
@@ -76,12 +74,12 @@ namespace Game
             return false;
         }
         /// <summary>
-        /// This function give another King
+        /// This function give opponent King
         /// </summary>
         /// <param name="figursColors">The color we want to find the king of the opposite color</param>
         /// <param name="board">The board we are playing on</param>
-        /// <returns>The another King Cell</returns>
-        private Cell GetAnotherKing(FigursColors figursColors,Board board)
+        /// <returns>The opponent King Cell</returns>
+        private Cell GetOpponentKing(FigursColors figursColors, Board board)
         {
             for (int i = 0; i < board.Cells.Count; i++)
             {
@@ -199,8 +197,6 @@ namespace Game
             int startNum;
             int endNum;
             char startLet;
-            char endLet;
-            char j;
             if (startCell.Letter > endCell.Letter && startCell.Number > endCell.Number)
             {
                 startLet = (char)(startCell.Letter - 1);
@@ -250,7 +246,7 @@ namespace Game
                 startLet = (char)(startCell.Letter + 1);
                 startNum = (int)(startCell.Number + 1);
                 endNum = (int)(endCell.Number - 1);
-                for (int i = startNum; i <= endNum; i++)
+                for (int i = startNum; i >= endNum; i--)
                 {
                     Cell cell = boardFunctions.GetCellByPosition(i, startLet, board);
                     bishopRoad.Add(cell);
@@ -309,7 +305,7 @@ namespace Game
                 }
                 endNum--;
                 startNum++;
-                for (int i = startNum; i < endNum; i++)
+                for (int i = startNum; i <= endNum; i++)
                 {
                     Cell cell = boardFunctions.GetCellByPosition(i, let, board);
                     rookRoad.Add(cell);

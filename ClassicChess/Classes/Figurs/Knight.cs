@@ -35,10 +35,6 @@ namespace ClassicChess.Classes.Figurs
                         {
                             return true;
                         }
-                        else
-                        {
-                            return false;
-                        }
                     }
                 }
             }

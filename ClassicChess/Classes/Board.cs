@@ -10,10 +10,7 @@ namespace ClassicChess.Classes
     {
         public Board()
         {
-            if (this.Cells.Count == 0)
-            {
-                this.CreateBoard();
-            }
+            this.CreateBoard();
         }
         public int Width { get; } = 16;
         public List<int> Numbers { get; set; } = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8 };
