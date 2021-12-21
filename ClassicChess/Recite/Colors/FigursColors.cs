@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ClassicChess.Enums.Colors
+﻿namespace ClassicChess.Recite.Colors
 {
     /// <summary>
     /// Specifies constants that define  colors for the figures.

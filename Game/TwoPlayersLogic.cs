@@ -1,7 +1,9 @@
-﻿using ClassicChess.Classes;
-using ClassicChess.Classes.Figurs;
-using ClassicChess.Classes.Figurs.Interface;
-using ClassicChess.Enums.Colors;
+﻿using ClassicChess.Entities;
+using ClassicChess.Entities.Figurs;
+using ClassicChess.Entities.Figurs.Combines;
+using ClassicChess.Recite;
+using ClassicChess.Recite.Colors;
+using System.Linq;
 
 namespace Game
 {
@@ -10,18 +12,11 @@ namespace Game
     /// </summary>
     public class TwoPlayersLogic
     {
-        /// <summary>
-        /// This function determines whether the figure can be moved
-        /// </summary>
-        /// <param name="startCell">The figure start cell</param>
-        /// <param name="endCell">The target cell</param>
-        /// <param name="board">The board we are playing on</param>
-        /// <param name="boardFunctions">The instance for  use board functions</param>
-        /// <returns>True if the figure can move.Otherwise false</returns>
-        public bool CanFigureMove(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
+        public bool CanFigureMove(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions, out bool isMat)
         {
             IFigure figur = startCell.Figur;
             IFigure newFigur = null;
+            isMat = false;
             if (this.CanMove(startCell, endCell, board, boardFunctions))
             {
                 if (figur.GetType() == typeof(Knight))
@@ -50,35 +45,208 @@ namespace Game
                 }
                 newFigur.Number = endCell.Number;
                 newFigur.Letter = endCell.Letter;
+                newFigur.FigureHistory.AddRange(figur.FigureHistory);
+                newFigur.FigureHistory.Add((startCell, endCell));
+                board.History.Add((figur, (startCell, endCell)));
                 board.Cells.FirstOrDefault(cell => cell == endCell).Figur = newFigur;
                 board.Cells.FirstOrDefault(cell => cell == startCell).Figur = null;
+                if (this.CheckYourKingShah(endCell.Figur.Color, board, boardFunctions))
+                {
+                    board.Cells.FirstOrDefault(cell => cell == endCell).Figur = null;
+                    board.Cells.FirstOrDefault(cell => cell == startCell).Figur = newFigur;
+                    return false;
+                }
+                board.Cells.FirstOrDefault(cell => cell == endCell).Figur.colorBackgraund = (ConsoleColor)board.Cells.FirstOrDefault(cell => cell == endCell).Color;
+                if (this.CheckKingShah(endCell, board, boardFunctions))
+                {
+                    isMat = this.IsMat(endCell, board, boardFunctions);
+                    return true;
+                }
                 return true;
             }
 
             return false;
         }
-        /// <summary>
-        /// This function checks whether the figure has given a shah to the opponent's king
-        /// </summary>
-        /// <param name="cell">The figure cell</param>
-        /// <param name="board">The board we are playing on</param>
-        /// <param name="boardFunctions">The instance for  use board functions</param>
-        /// <returns>True if the figure shah to the opponent's king.Otherwise false</returns>
-        public bool CheckKingShah(Cell cell, Board board, FunctionsForBoard boardFunctions)
+        public bool IsPat(FigursColors figurColor, Board board, FunctionsForBoard boardFunctions)
         {
-            Cell endCell = this.GetOpponentKing(cell.Figur.Color, board);
-            if (this.CanMove(cell, endCell, board, boardFunctions))
+            List<Cell> figures;
+            if (figurColor == FigursColors.Red)
             {
+                figures = this.GetOpponentFigures(FigursColors.Green, board);
+            }
+            else
+            {
+                figures = this.GetOpponentFigures(FigursColors.Red, board);
+            }
+            for (int i = 0; i < figures.Count; i++)
+            {
+                for (int j = 0; j < board.Cells.Count; j++)
+                {
+                    if (this.CanMove(figures[i], board.Cells[j], board, boardFunctions))
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        public void ChangeFigure(Cell cell, IFigure figure, Board board, FunctionsForBoard boardFunctions)
+        {
+            board.Cells.FirstOrDefault(c => c == cell).Figur = figure;
+            board.Cells.FirstOrDefault(c => c == cell).Figur.Number = cell.Number;
+            board.Cells.FirstOrDefault(c => c == cell).Figur.Letter = cell.Letter;
+            board.Cells.FirstOrDefault(c => c == cell).Figur.colorBackgraund = (ConsoleColor)board.Cells.FirstOrDefault(c => c == cell).Color;
+        }
+        private bool CanMove(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
+        {
+
+            List<Cell> Road = new List<Cell>();
+
+            IFigure figur = startCell.Figur;
+            if (figur.IsMove(endCell))
+            {
+                if (figur.GetType() == typeof(Knight))
+                {
+                    return true;
+                }
+                else if (figur.GetType() == typeof(King))
+                {
+                    if (this.CanKingMove(startCell, endCell, board, boardFunctions))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                Road = this.GetRoad(startCell, endCell, board, boardFunctions);
+                for (int i = 0; i < Road.Count; i++)
+                {
+                    if (Road[i].Figur != null)
+                    {
+                        return false;
+                    }
+                }
                 return true;
             }
             return false;
         }
-        /// <summary>
-        /// This function give opponent King
-        /// </summary>
-        /// <param name="figursColors">The color we want to find the king of the opposite color</param>
-        /// <param name="board">The board we are playing on</param>
-        /// <returns>The opponent King Cell</returns>
+        private List<Cell> GetRoad(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
+        {
+            List<Cell> Road = new List<Cell>();
+
+            IFigure figur = startCell.Figur;
+
+            if (figur.GetType() == typeof(Pawn))
+            {
+                Road = this.PawnMoveRoad(startCell, endCell, board, boardFunctions);
+            }
+            else if (figur.GetType() == typeof(Bishop))
+            {
+                Road = this.BishopMoveRoad(startCell, endCell, board, boardFunctions);
+            }
+            else if (figur.GetType() == typeof(Rook))
+            {
+                Road = this.RookMoveRoad(startCell, endCell, board, boardFunctions);
+            }
+            else if (figur.GetType() == typeof(Queen))
+            {
+                Road = this.QueenMoveRoad(startCell, endCell, board, boardFunctions);
+            }
+            return Road;
+        }
+        private bool IsMat(Cell cell, Board board, FunctionsForBoard boardFunctions)
+        {
+            List<Cell> opponentFigures = this.GetOpponentFigures(cell.Figur.Color, board);
+            Cell KingCell = this.GetOpponentKing(cell.Figur.Color, board);
+            List<Cell> Road = this.GetRoad(cell, KingCell, board, boardFunctions);
+            Road.Add(cell);
+            for (int i = 0; i < opponentFigures.Count; i++)
+            {
+                for (int j = 0; j < Road.Count; j++)
+                {
+                    if (this.CanMove(opponentFigures[i], Road[j], board, boardFunctions))
+                    {
+                        IFigure figure = board.Cells.FirstOrDefault(c => c == opponentFigures[i]).Figur;
+                        IFigure tempfigure = null;
+                        bool haveRoadJFigure;
+                        if (board.Cells.FirstOrDefault(c => c == Road[j]).Figur != null)
+                        {
+                            tempfigure = board.Cells.FirstOrDefault(c => c == Road[j]).Figur;
+                        }
+                        board.Cells.FirstOrDefault(c => c == Road[j]).Figur = figure;
+                        board.Cells.FirstOrDefault(c => c == opponentFigures[i]).Figur = null;
+                        if (!CheckYourKingShah(Road[j].Figur.Color, board, boardFunctions))
+                        {
+                            board.Cells.FirstOrDefault(c => c == opponentFigures[i]).Figur = figure;
+                            board.Cells.FirstOrDefault(c => c == Road[j]).Figur = tempfigure;
+                            return false;
+                        }
+                        board.Cells.FirstOrDefault(c => c == opponentFigures[i]).Figur = figure;
+                        board.Cells.FirstOrDefault(c => c == Road[j]).Figur = tempfigure;
+                    }
+                }
+            }
+            this.ChangeFigurBackgraund(KingCell, ConsoleColor.Blue, board);
+            return true;
+        }
+        private bool CheckKingShah(Cell cell, Board board, FunctionsForBoard boardFunctions)
+        {
+            Cell endCell = this.GetOpponentKing(cell.Figur.Color, board);
+            if (this.CanMove(cell, endCell, board, boardFunctions))
+            {
+                this.ChangeFigurBackgraund(endCell, ConsoleColor.DarkYellow, board);
+                return true;
+            }
+            else
+            {
+                this.ChangeFigurBackgraund(endCell, (ConsoleColor)endCell.Color, board);
+                return false;
+            }
+        }
+        private void ChangeFigurBackgraund(Cell cell, ConsoleColor color, Board board)
+        {
+            board.Cells.FirstOrDefault(c => c == cell).Figur.colorBackgraund = color;
+        }
+        private bool CheckYourKingShah(FigursColors figurColor, Board board, FunctionsForBoard boardFunctions)
+        {
+            Cell endCell;
+            if (figurColor == FigursColors.Red)
+            {
+                endCell = this.GetOpponentKing(FigursColors.Green, board);
+            }
+            else
+            {
+                endCell = this.GetOpponentKing(FigursColors.Red, board);
+            }
+            List<Cell> opponentFigurs = this.GetOpponentFigures(figurColor, board);
+
+            for (int i = 0; i < opponentFigurs.Count; i++)
+            {
+                if (this.CanMove(opponentFigurs[i], endCell, board, boardFunctions))
+                {
+                    return true;
+                }
+            }
+            //this.CheckKingShah(opponentFigurs[0], board, boardFunctions);
+            return false;
+        }
+        private List<Cell> GetOpponentFigures(FigursColors figursColors, Board board)
+        {
+            List<Cell> list = new List<Cell>();
+            for (int i = 0; i < board.Cells.Count; i++)
+            {
+                if (board.Cells[i].Figur != null)
+                {
+                    if (figursColors != board.Cells[i].Figur.Color)
+                    {
+                        list.Add(board.Cells[i]);
+                    }
+                }
+            }
+            return list;
+        }
         private Cell GetOpponentKing(FigursColors figursColors, Board board)
         {
             for (int i = 0; i < board.Cells.Count; i++)
@@ -93,77 +261,6 @@ namespace Game
             }
             return null;
         }
-        /// <summary>
-        /// This function determines can practically move the figure
-        /// </summary>
-        /// <param name="startCell">The figure start cell</param>
-        /// <param name="endCell">The target cell</param>
-        /// <param name="board">The board we are playing on</param>
-        /// <param name="boardFunctions">The instance for  use board functions</param>
-        /// <returns>True if the figure can move.Otherwise false</returns>
-        private bool CanMove(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
-        {
-
-            List<Cell> Road = new List<Cell>();
-
-            IFigure figur = startCell.Figur;
-            IFigure newFigur = null;
-            if (figur.IsMove(endCell))
-            {
-                if (figur.GetType() == typeof(Knight))
-                {
-                    return true;
-                }
-                else if (figur.GetType() == typeof(Pawn))
-                {
-                    Road = this.PawnMoveRoad(startCell, endCell, board, boardFunctions);
-                    newFigur = new Pawn(figur.Color);
-                }
-                else if (figur.GetType() == typeof(Bishop))
-                {
-                    Road = this.BishopMoveRoad(startCell, endCell, board, boardFunctions);
-                    newFigur = new Bishop(figur.Color);
-                }
-                else if (figur.GetType() == typeof(Rook))
-                {
-                    Road = this.RookMoveRoad(startCell, endCell, board, boardFunctions);
-                    newFigur = new Rook(figur.Color);
-                }
-                else if (figur.GetType() == typeof(Queen))
-                {
-                    Road = this.QueenMoveRoad(startCell, endCell, board, boardFunctions);
-                    newFigur = new Queen(figur.Color);
-                }
-                else if (figur.GetType() == typeof(King))
-                {
-                    if (this.CanKingMove(startCell, endCell, board, boardFunctions))
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                for (int i = 0; i < Road.Count; i++)
-                {
-                    if (Road[i].Figur != null)
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }
-            return false;
-        }
-        /// <summary>
-        /// The function give Pawn move Road
-        /// </summary>
-        /// <param name="startCell">The figure start cell</param>
-        /// <param name="endCell">The target cell</param>
-        /// <param name="board">The board we are playing on</param>
-        /// <param name="boardFunctions">The instance for  use board functions</param>
-        /// <returns>The Pawn move Road List by steps </returns>
         private List<Cell> PawnMoveRoad(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
         {
             List<Cell> list = new List<Cell>();
@@ -178,19 +275,12 @@ namespace Game
                 {
                     start = (int)startCell.Number + 1;
                 }
-                Cell cell = boardFunctions.GetCellByPosition(start, (char)startCell.Letter, board);
+                string position = (char)startCell.Letter + start.ToString();
+                Cell cell = boardFunctions.GetCellByPosition(position, board);
                 list.Add(cell);
             }
             return list;
         }
-        /// <summary>
-        /// The function give Bishop move Road
-        /// </summary>
-        /// <param name="startCell">The figure start cell</param>
-        /// <param name="endCell">The target cell</param>
-        /// <param name="board">The board we are playing on</param>
-        /// <param name="boardFunctions">The instance for  use board functions</param>
-        /// <returns>The Bishop move Road List by steps </returns>
         private List<Cell> BishopMoveRoad(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
         {
             List<Cell> bishopRoad = new List<Cell>();
@@ -204,14 +294,16 @@ namespace Game
                 endNum = (int)(endCell.Number + 1);
                 if (startNum == endNum)
                 {
-                    Cell cell = boardFunctions.GetCellByPosition(startNum, startLet, board);
+                    string position = startLet + startNum.ToString();
+                    Cell cell = boardFunctions.GetCellByPosition(position, board);
                     bishopRoad.Add(cell);
                 }
                 else
                 {
                     for (int i = startNum; i <= endNum; i--)
                     {
-                        Cell cell = boardFunctions.GetCellByPosition(i, startLet, board);
+                        string position = startLet + i.ToString();
+                        Cell cell = boardFunctions.GetCellByPosition(position, board);
                         bishopRoad.Add(cell);
                         startLet--;
                     }
@@ -224,7 +316,8 @@ namespace Game
                 endNum = (int)(endCell.Number - 1);
                 for (int i = startNum; i <= endNum; i++)
                 {
-                    Cell cell = boardFunctions.GetCellByPosition(i, startLet, board);
+                    string position = startLet + i.ToString();
+                    Cell cell = boardFunctions.GetCellByPosition(position, board);
                     bishopRoad.Add(cell);
                     startLet--;
                 }
@@ -236,7 +329,8 @@ namespace Game
                 endNum = (int)(endCell.Number + 1);
                 for (int i = startNum; i <= endNum; i--)
                 {
-                    Cell cell = boardFunctions.GetCellByPosition(i, startLet, board);
+                    string position = startLet + i.ToString();
+                    Cell cell = boardFunctions.GetCellByPosition(position, board);
                     bishopRoad.Add(cell);
                     startLet++;
                 }
@@ -246,23 +340,16 @@ namespace Game
                 startLet = (char)(startCell.Letter + 1);
                 startNum = (int)(startCell.Number + 1);
                 endNum = (int)(endCell.Number - 1);
-                for (int i = startNum; i >= endNum; i--)
+                for (int i = startNum; i <= endNum; i++)
                 {
-                    Cell cell = boardFunctions.GetCellByPosition(i, startLet, board);
+                    string position = startLet + i.ToString();
+                    Cell cell = boardFunctions.GetCellByPosition(position, board);
                     bishopRoad.Add(cell);
                     startLet++;
                 }
             }
             return bishopRoad;
         }
-        /// <summary>
-        /// The function give Rook move Road
-        /// </summary>
-        /// <param name="startCell">The figure start cell</param>
-        /// <param name="endCell">The target cell</param>
-        /// <param name="board">The board we are playing on</param>
-        /// <param name="boardFunctions">The instance for  use board functions</param>
-        /// <returns>The Rook move Road List by steps </returns>
         private List<Cell> RookMoveRoad(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
         {
             List<Cell> rookRoad = new List<Cell>();
@@ -283,7 +370,8 @@ namespace Game
                 int num = (int)startCell.Number;
                 for (char i = startLet; i < endLet; i++)
                 {
-                    Cell cell = boardFunctions.GetCellByPosition(num, i, board);
+                    string position = i + num.ToString();
+                    Cell cell = boardFunctions.GetCellByPosition(position, board);
                     rookRoad.Add(cell);
                 }
                 return rookRoad;
@@ -307,20 +395,13 @@ namespace Game
                 startNum++;
                 for (int i = startNum; i <= endNum; i++)
                 {
-                    Cell cell = boardFunctions.GetCellByPosition(i, let, board);
+                    string position = let + i.ToString();
+                    Cell cell = boardFunctions.GetCellByPosition(position, board);
                     rookRoad.Add(cell);
                 }
                 return rookRoad;
             }
         }
-        /// <summary>
-        /// The function give Queen move Road
-        /// </summary>
-        /// <param name="startCell">The figure start cell</param>
-        /// <param name="endCell">The target cell</param>
-        /// <param name="board">The board we are playing on</param>
-        /// <param name="boardFunctions">The instance for  use board functions</param>
-        /// <returns>The Queen move Road List by steps </returns>
         private List<Cell> QueenMoveRoad(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
         {
             List<Cell> queenRoad = new List<Cell>();
@@ -334,17 +415,8 @@ namespace Game
             }
             return queenRoad;
         }
-        /// <summary>
-        /// The function checks whether a king can move to the target position or not
-        /// </summary>
-        /// <param name="startCell">The figure start cell</param>
-        /// <param name="endCell">The target cell</param>
-        /// <param name="board">The board we are playing on</param>
-        /// <param name="boardFunctions">The instance for  use board functions</param>
-        /// <returns>True if king can move to the target position.Otherwise False</returns>
         private bool CanKingMove(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
         {
-            List<IFigure> figures = new List<IFigure>();
             FigursColors figursColors = startCell.Figur.Color;
             if (endCell.Figur == null)
             {
@@ -366,27 +438,9 @@ namespace Game
             }
             return false;
         }
-        /// <summary>
-        /// The function checks is there shah or not
-        /// </summary>
-        /// <param name="cell">Cell for the possible shah</param>
-        /// <param name="board">The board we are playing on</param>
-        /// <param name="figurColor">The current color for the selected king figure</param>
-        /// <param name="boardFunctions">The instance for  use board functions</param>
-        /// <returns>True if the selected king's next move will be under shah.Otherwise false </returns>
         private bool IsKingShah(Cell cell, Board board, FigursColors figurColor, FunctionsForBoard boardFunctions)
         {
-            List<Cell> cells = new List<Cell>();
-            for (int i = 0; i < board.Cells.Count; i++)
-            {
-                if (board.Cells[i].Figur != null)
-                {
-                    if (board.Cells[i].Figur.Color != figurColor)
-                    {
-                        cells.Add(board.Cells[i]);
-                    }
-                }
-            }
+            List<Cell> cells = this.GetOpponentFigures(figurColor, board);
             for (int i = 0; i < cells.Count; i++)
             {
                 if (this.CanMove(cells[i], cell, board, boardFunctions))

@@ -1,21 +1,25 @@
-﻿using ClassicChess.Classes.Figurs.Interface;
-using ClassicChess.Enums;
-using ClassicChess.Enums.Colors;
+﻿using ClassicChess.Entities.Figurs.Combines;
+using ClassicChess.Recite;
+using ClassicChess.Recite.Colors;
 
-namespace ClassicChess.Classes.Figurs
+namespace ClassicChess.Entities.Figurs
 {
     /// <summary>
     /// This class is about the chess piece of the Pawn
     /// </summary>
     public class Pawn : IFigure
     {
+        public Numbers Number { get; set; }
+        public Letters Letter { get; set; }
+        public FigursColors Color { get; }
+        public ConsoleColor colorBackgraund { get; set; }
+        public List<(Cell, Cell)> FigureHistory { get; set; } = new List<(Cell, Cell)>();
+
+
         public Pawn(FigursColors color)
         {
             this.Color = color;
         }
-        public Numbers Number { get; set; }
-        public Letters Letter { get; set; }
-        public FigursColors Color { get; }
         public bool IsMove(Cell cell)
         {
             if (!IsSamePos(cell))

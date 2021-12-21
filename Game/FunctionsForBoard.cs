@@ -1,8 +1,8 @@
-﻿using ClassicChess.Classes;
-using ClassicChess.Classes.Figurs;
-using ClassicChess.Classes.Figurs.Interface;
-using ClassicChess.Enums;
-using ClassicChess.Enums.Colors;
+﻿using ClassicChess.Entities;
+using ClassicChess.Entities.Figurs;
+using ClassicChess.Entities.Figurs.Combines;
+using ClassicChess.Recite;
+using ClassicChess.Recite.Colors;
 
 namespace Game
 {
@@ -11,43 +11,8 @@ namespace Game
     /// </summary>
     public class FunctionsForBoard
     {
-        /// <summary>
-        /// This function checks whether the position is on the chessboard or not
-        /// </summary>
-        /// <param name="position">This is the position we want to know</param>
-        /// <returns>This function will return true if there is a cell in that position and that cell is on the chessboard. Otherwise false</returns>
-        public bool IsTruePosition(string position)
-        {
-            if (position.Length == 2)
-            {
-                int digite;
-                int digitePosition = 0;
-                int tempDigite;
-                bool isDigite = int.TryParse(position[digitePosition].ToString(), out digite);
-                bool isLetter = !int.TryParse(position[1 - digitePosition].ToString(), out tempDigite);
-                if ((isDigite && isLetter))
-                {
-                    char letter = position[1 - digitePosition].ToString().ToUpper()[0];
-                    if (digite > 0 && digite <= 8 && letter >= 'A' && letter <= 'H')
-                    {
-                        return true;
-                    }
-                }
-                else if (!isDigite && !isLetter)
-                {
-                    digitePosition = 1;
-                    digite = tempDigite;
-                    char letter = position[1 - digitePosition].ToString().ToUpper()[0];
-                    if (digite > 0 && digite <= 8 && letter >= 'A' && letter <= 'H')
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-        
-        /// <summary>
+
+        /*/// <summary>
         /// This function gives the cell coordinates
         /// </summary>
         /// <param name="position">The position of the cell in which we will find the coordinates</param>
@@ -68,22 +33,27 @@ namespace Game
             letter = ((position[1 - digitePosition].ToString()).ToUpper())[0];
 
             return (digite, letter);
-        }
+        }*/
         
         /// <summary>
         /// This function finds the cell from the board according to the cell coordinates
         /// </summary>
-        /// <param name="num">The cell number</param>
-        /// <param name="letter">The cell Letter</param>
+        /// <param name="position"></param>
         /// <param name="board">The board from which we want to find the cell</param>
         /// <returns>The cell he found</returns>
-        public Cell GetCellByPosition(int num, char letter, Board board)
+        public Cell GetCellByPosition(string position, Board board)
         {
-            for (int i = 0; i < board.Cells.Count; i++)
+            if (board.IsTruePosition(position))
             {
-                if (board.Cells[i].Number == (Numbers)num && board.Cells[i].Letter == (Letters)letter)
+                int num;
+                int.TryParse(position[1].ToString(), out num);
+                char letter = position[0].ToString().ToUpper()[0];
+                for (int i = 0; i < board.Cells.Count; i++)
                 {
-                    return board.Cells[i];
+                    if (board.Cells[i].Number == (Numbers)num && board.Cells[i].Letter == (Letters)letter)
+                    {
+                        return board.Cells[i];
+                    }
                 }
             }
             return null;
@@ -132,6 +102,10 @@ namespace Game
             }
             return Figurs;
         }
+        public bool ChekCellFigure(Cell cell,Board board)
+        {
+            return board.CheckAreFigureInCell(cell);
+        }
         
         /// <summary>
         /// This function add the created figures in board
@@ -157,6 +131,7 @@ namespace Game
                     board.Cells[cellIndex].Figur = Figurs[i];
                     board.Cells[cellIndex].Figur.Number = board.Cells[cellIndex].Number;
                     board.Cells[cellIndex].Figur.Letter = board.Cells[cellIndex].Letter;
+                    board.Cells[cellIndex].Figur.colorBackgraund = (ConsoleColor)board.Cells[cellIndex].Color;
                     cellIndex++;
                 }
             }

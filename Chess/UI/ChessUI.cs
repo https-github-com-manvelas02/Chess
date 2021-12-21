@@ -1,7 +1,4 @@
-﻿using ClassicChess.Classes;
-using ClassicChess.Classes.Figurs;
-using ClassicChess.Enums.Colors;
-using Game;
+﻿using Game;
 
 namespace Chess.UI
 {
@@ -10,16 +7,18 @@ namespace Chess.UI
     /// </summary>
     public class ChessUi
     {
-        TaskMethods taskMethods = new TaskMethods();
+        TaskMethods taskMethods;
         bool IsGoWhite = true;
-        bool IsShah = false;
-        FigursColors figursColors;
-
+        List<(int, string)> FiguresNames = new List<(int, string)> { (1, "Queen"), (2, "Rook"), (3, "Bishop"), (4, "Knight") };
+        string figureName;
+        int leftCursor;
+        int topCursor;
         /// <summary>
         /// The function is for launch the game menu
         /// </summary>
         public void Start()
         {
+            taskMethods = new TaskMethods();
             Console.Clear();
             Console.WriteLine("1)PLay\t2)Knight\tESC)Exit");
             ConsoleKey key = Console.ReadKey().Key;
@@ -40,6 +39,10 @@ namespace Chess.UI
                     break;
             }
         }
+        private void History()
+        {
+            Console.WriteLine(taskMethods.GetHistory());
+        }
         /// <summary>
         /// The function is starting for play with only knight
         /// </summary>
@@ -52,40 +55,39 @@ namespace Chess.UI
             {
                 Console.Write("\nPlease select start cell for  knight : ");
                 startPos = Console.ReadLine();
-                if (taskMethods.IsTruePosition(startPos))
+                if (taskMethods.GetCellByPosition(startPos) != null)
                 {
                     break;
                 }
             }
-            (int, char) cellPosition = taskMethods.GetPosition(startPos);
-            Cell startCell = taskMethods.GetCellByPosition(cellPosition.Item1, cellPosition.Item2);
             taskMethods.CreateOnlyKnight();
-            taskMethods.AddKnightToBoard(startCell);
+            taskMethods.AddKnightToBoard(startPos);
             this.Print();
             while (true)
             {
                 Console.Write("\nPlease select target cell : ");
                 endPos = Console.ReadLine();
-                if (taskMethods.IsTruePosition(endPos))
+                if (taskMethods.GetCellByPosition(endPos) != null)
                 {
                     break;
                 }
             }
-            cellPosition = taskMethods.GetPosition(endPos);
-            Cell endCell = taskMethods.GetCellByPosition(cellPosition.Item1, cellPosition.Item2);
-            List<Cell> steps = taskMethods.GetKnightRoad(startCell, endCell);
+            List<string> steps = taskMethods.GetKnightRoad(startPos, endPos);
             for (int i = 0; i < steps.Count - 1; i++)
             {
-                if (taskMethods.CanFigureMove(steps[i], steps[i + 1]))
+                taskMethods.GetCellByPosition(steps[i]);
+                taskMethods.GetCellByPosition(steps[i + 1]);
+                if (taskMethods.CanFigureMove(out bool a))
                 {
                     Thread.Sleep(1000);
                     this.Print();
                 }
+                taskMethods.ClearPositions();
             }
 
-            foreach (Cell item in steps)
+            foreach (string item in steps)
             {
-                Console.Write($"\n{item.Letter}{(int)item.Number}");
+                Console.Write($"\n{item}");
             }
             Console.WriteLine($"\nThe total moves count is : {steps.Count - 1}");
         }
@@ -102,70 +104,106 @@ namespace Chess.UI
             this.Print();
             string startPos;
             string endPos;
-            Cell startCell;
-            (int, char) position;
+            bool isMat;
             while (true)
             {
+                taskMethods.ClearPositions();
                 while (true)
                 {
-                    Console.Write("\nPlease select a figure start position for move : ");
-                    startPos = Console.ReadLine();
-                    if (taskMethods.IsTruePosition(startPos))
+                    while (true)
                     {
-                        break;
-                    }
-                }
-                position = taskMethods.GetPosition(startPos);
-                startCell = taskMethods.GetCellByPosition(position.Item1, position.Item2);
-                if (startCell.Figur != null)
-                {
-                    if (IsGoWhite)
-                    {
-                        if (startCell.Figur.Color == FigursColors.Green)
+                        Console.Write("\nPlease select a figure start position for move : ");
+                        startPos = Console.ReadLine();
+                        if (taskMethods.GetCellByPosition(startPos) != null)
                         {
-                            IsGoWhite = false;
                             break;
                         }
-                        Console.WriteLine("Please select the Green Figure Position");
+                    }
+                    if (taskMethods.CheckCellFigure())
+                    {
+                        if (IsGoWhite)
+                        {
+                            if (taskMethods.GiveFigureColor())
+                            {
+                                IsGoWhite = false;
+                                break;
+                            }
+                            Console.WriteLine("Please select the Green Figure Position");
+                        }
+                        else
+                        {
+                            if (!taskMethods.GiveFigureColor())
+                            {
+                                IsGoWhite = true;
+                                break;
+                            }
+                            Console.WriteLine("Please select the Red Figure Position");
+                        }
                     }
                     else
                     {
-                        if (startCell.Figur.Color == FigursColors.Red)
-                        {
-                            IsGoWhite = true;
-                            break;
-                        }
-                        Console.WriteLine("Please select the Red Figure Position");
+                        Console.WriteLine("please select the position where there is a figure");
                     }
+                    taskMethods.ClearPositions();
                 }
-                else
-                {
-                    Console.WriteLine("please select the position where there is a figure");
-                }
-            }
-            while (true)
-            {
                 while (true)
                 {
                     Console.Write("Please select target position : ");
                     endPos = Console.ReadLine();
-                    if (taskMethods.IsTruePosition(endPos))
+                    if (taskMethods.GetCellByPosition(endPos) != null)
                     {
                         break;
                     }
+                    Console.WriteLine("You cant move the selected position please select another position");
                 }
-                position = taskMethods.GetPosition(endPos);
-                Cell endCell = taskMethods.GetCellByPosition(position.Item1, position.Item2);
-                if (taskMethods.CanFigureMove(startCell, endCell))
+
+                if (taskMethods.CanFigureMove(out isMat))
                 {
-                    IsShah = this.taskMethods.CheckKingShah(endCell);
-                    if (IsShah)
+                    if (taskMethods.IsChangePawn())
                     {
-                        figursColors = endCell.Figur.Color;
+                        Console.WriteLine("\n");
+                        leftCursor = Console.CursorLeft;
+                        topCursor = Console.CursorTop;
+                        figureName = this.SelectChangedFigure();
+                        taskMethods.ChangePawn(figureName);
+                    }
+                    if (isMat)
+                    {
+                        this.Print();
+                        string winerColor;
+                        if (IsGoWhite)
+                        {
+                            winerColor = "Red";
+                        }
+                        else
+                        {
+                            winerColor = "Green";
+                        }
+                        Console.WriteLine("\nThe game is over.Winer is " + winerColor);
+                        IsGoWhite = true;
+                        this.History();
+                        Console.ReadKey();
+                        this.Start();
+                    }
+                    if (taskMethods.IsPat())
+                    {
+                        this.Print();
+                        Console.WriteLine("\nThe game is over.");
+                        IsGoWhite = true;
+                        Console.ReadKey();
+                        this.Start();
                     }
                     this.PlayView();
                 }
-                Console.WriteLine("You cant move the selected position please select another position");
+                if (IsGoWhite)
+                {
+                    IsGoWhite = false;
+                }
+                else
+                {
+                    IsGoWhite = true;
+                }
+                Console.WriteLine("PLease do all angain");
             }
         }
         /// <summary>
@@ -180,26 +218,21 @@ namespace Chess.UI
                 for (int j = (i * 8); j < ((i * 8) + 8); j++)
                 {
                     string toWrite;
-                    Console.BackgroundColor = (ConsoleColor)this.taskMethods.board.Cells[j].Color;
+                    if (this.taskMethods.board.Cells[j].Figur != null)
+                    {
+                        Console.BackgroundColor = this.taskMethods.board.Cells[j].Figur.colorBackgraund;
+                    }
+                    else
+                    {
+                        Console.BackgroundColor = (ConsoleColor)this.taskMethods.board.Cells[j].Color;
+                    }
                     if (this.taskMethods.board.Cells[j].Figur == null)
                     {
                         toWrite = "  ";
                     }
-                    else if (this.taskMethods.board.Cells[j].Figur.GetType() == typeof(King))
-                    {
-                        toWrite = $"{(this.taskMethods.board.Cells[j].Figur.GetType().Name)[0]}{(this.taskMethods.board.Cells[j].Figur.GetType().Name)[1]}";
-                        Console.ForegroundColor = (ConsoleColor)this.taskMethods.board.Cells[j].Figur.Color;
-                        if (IsShah)
-                        {
-                            if (this.taskMethods.board.Cells[j].Figur.Color != figursColors)
-                            {
-                                Console.BackgroundColor = ConsoleColor.DarkYellow;
-                            }
-                        }
-                    }
                     else
                     {
-                        toWrite = $"{(this.taskMethods.board.Cells[j].Figur.GetType().Name)[0]} ";
+                        toWrite = $"{(this.taskMethods.board.Cells[j].Figur.GetType().Name)[0]}{(this.taskMethods.board.Cells[j].Figur.GetType().Name)[1]}";
                         Console.ForegroundColor = (ConsoleColor)this.taskMethods.board.Cells[j].Figur.Color;
                     }
                     Console.Write(toWrite);
@@ -213,6 +246,40 @@ namespace Chess.UI
             {
                 Console.Write($"{this.taskMethods.board.Letters[i]} ");
             }
+        }
+        private string SelectChangedFigure()
+        {
+            Console.SetCursorPosition(leftCursor,topCursor);
+            string changedFigureName ="";
+            Console.WriteLine("Please select a figur to change with your pawn");
+            for (int i = 0; i < FiguresNames.Count; i++)
+            {
+                Console.WriteLine($"{FiguresNames[i].Item1}){FiguresNames[i].Item2}");
+            }
+            ConsoleKey key = Console.ReadKey().Key;
+            switch (key)
+            {
+                case ConsoleKey.NumPad1:
+                case ConsoleKey.D1:
+                    changedFigureName =  FiguresNames[0].Item2;
+                    break;
+                case ConsoleKey.NumPad2:
+                case ConsoleKey.D2:
+                    changedFigureName = FiguresNames[1].Item2;
+                    break;
+                case ConsoleKey.NumPad3:
+                case ConsoleKey.D3:
+                    changedFigureName =  FiguresNames[2].Item2;
+                    break;
+                case ConsoleKey.NumPad4:
+                case ConsoleKey.D4:
+                    changedFigureName =  FiguresNames[3].Item2;
+                    break;
+                default:
+                    this.SelectChangedFigure();
+                    break;
+            }
+            return changedFigureName;
         }
     }
 }

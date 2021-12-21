@@ -1,7 +1,7 @@
-﻿using ClassicChess.Enums;
-using ClassicChess.Enums.Colors;
+﻿using ClassicChess.Recite;
+using ClassicChess.Recite.Colors;
 
-namespace ClassicChess.Classes.Figurs.Interface
+namespace ClassicChess.Entities.Figurs.Combines
 {
     /// <summary>
     /// This interface is about a chess figure
@@ -11,6 +11,8 @@ namespace ClassicChess.Classes.Figurs.Interface
         Numbers Number { get; set; }
         Letters Letter { get; set; }
         FigursColors Color { get; }
+        List<(Cell,Cell)> FigureHistory { get; set; }
+        ConsoleColor colorBackgraund { get; set; }
         /// <summary>
         /// This function ensures the theoretical movement of the figure, ie theoretically the figure can be moved to a given cell
         /// </summary>

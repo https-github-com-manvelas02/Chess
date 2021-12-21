@@ -1,8 +1,8 @@
-﻿using ClassicChess.Classes.Figurs.Interface;
-using ClassicChess.Enums;
-using ClassicChess.Enums.Colors;
+﻿using ClassicChess.Entities.Figurs.Combines;
+using ClassicChess.Recite;
+using ClassicChess.Recite.Colors;
 
-namespace ClassicChess.Classes
+namespace ClassicChess.Entities
 {
     /// <summary>
     /// This class is about a chess cell

@@ -1,33 +1,31 @@
-﻿using ClassicChess.Classes.Figurs.Interface;
-using ClassicChess.Enums;
-using ClassicChess.Enums.Colors;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ClassicChess.Entities.Figurs.Combines;
+using ClassicChess.Recite;
+using ClassicChess.Recite.Colors;
 
-namespace ClassicChess.Classes.Figurs
+namespace ClassicChess.Entities.Figurs
 {
     /// <summary>
-    /// This class is about the chess piece of the Queen
+    /// This class is about the chess piece of the King
     /// </summary>
-    public class Queen : IFigure
+    public class King : IFigure
     {
-
-        public Queen(FigursColors color)
-        {
-            this.Color = color;
-        }
         public Numbers Number { get; set; }
         public Letters Letter { get; set; }
         public FigursColors Color { get; }
+        public ConsoleColor colorBackgraund { get; set; }
+        public List<(Cell, Cell)> FigureHistory { get; set; } = new List<(Cell, Cell)>();
+
+        public King(FigursColors color)
+        {
+            this.Color = color;
+        }
+
+
         public bool IsMove(Cell cell)
         {
             if (!IsSamePos(cell))
             {
-                if (Math.Abs(this.Number - cell.Number) == Math.Abs(this.Letter - cell.Letter) 
-                    || this.Number == cell.Number || this.Letter == cell.Letter)
+                if (Math.Abs(this.Number - cell.Number) <= 1 && Math.Abs(this.Letter - cell.Letter) <= 1)
                 {
                     if (cell.Figur == null)
                     {
@@ -42,7 +40,6 @@ namespace ClassicChess.Classes.Figurs
                     }
                 }
             }
-
             return false;
         }
         public bool IsSamePos(Cell cell)

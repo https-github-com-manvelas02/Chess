@@ -1,4 +1,4 @@
-﻿namespace ClassicChess.Enums
+﻿namespace ClassicChess.Recite
 {
     /// <summary>
     /// Specifies constants that define the board numbers.

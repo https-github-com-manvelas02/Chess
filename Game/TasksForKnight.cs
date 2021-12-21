@@ -1,7 +1,7 @@
-﻿using ClassicChess.Classes;
-using ClassicChess.Classes.Figurs;
-using ClassicChess.Enums;
-using ClassicChess.Enums.Colors;
+﻿using ClassicChess.Entities;
+using ClassicChess.Entities.Figurs;
+using ClassicChess.Recite;
+using ClassicChess.Recite.Colors;
 
 namespace Game
 {
@@ -10,7 +10,6 @@ namespace Game
     /// </summary>
     public class TasksForKnight
     {
-
         Cell knightPossition;
         List<Cell> knightPossiblePositions = new List<Cell>();
         List<(Cell, List<Cell>)> KnightPossibleRoad = new List<(Cell, List<Cell>)>();
@@ -23,12 +22,13 @@ namespace Game
         /// <param name="endCell">The target Cell</param>
         /// <param name="board">The board on which the other arguments are located</param>
         /// <returns>The horse shortest Road List by steps </returns>
-        public List<Cell> GetKnightRoad(Cell startCell, Cell endCell, Board board)
+        public List<string> GetKnightRoad(Cell startCell, Cell endCell, Board board)
         {
             Cell knightPos = this.GetAllPossiblePosition(startCell, endCell, board);
             int index = KnightPossibleRoad.Count - 1;
-            List<Cell> steps = new List<Cell>();
-            steps.Add(startCell);
+            List<string> steps = new List<string>();
+            string cell = (char)startCell.Letter + ((int)startCell.Number).ToString();
+            steps.Add(cell);
 
             while (true)
             {
@@ -40,7 +40,8 @@ namespace Game
                 {
                     if (KnightPossibleRoad[index].Item2[i] == knightPossition)
                     {
-                        steps.Add(KnightPossibleRoad[index].Item1);
+                        cell = (char)KnightPossibleRoad[index].Item1.Letter + ((int)KnightPossibleRoad[index].Item1.Number).ToString();
+                        steps.Add(cell);
                         knightPossition = KnightPossibleRoad[index].Item1;
                         break;
                     }
