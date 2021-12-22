@@ -56,6 +56,19 @@ namespace Game
                     board.Cells.FirstOrDefault(cell => cell == startCell).Figur = newFigur;
                     return false;
                 }
+                else
+                {
+                    Cell kingCell;
+                    if (endCell.Figur.Color == FigursColors.Green)
+                    {
+                        kingCell = this.GetOpponentKing(FigursColors.Red, board);
+                    }
+                    else
+                    {
+                        kingCell = this.GetOpponentKing(FigursColors.Green, board);
+                    }
+                    this.ChangeFigurBackgraund(kingCell, (ConsoleColor)kingCell.Color, board);
+                }
                 board.Cells.FirstOrDefault(cell => cell == endCell).Figur.colorBackgraund = (ConsoleColor)board.Cells.FirstOrDefault(cell => cell == endCell).Color;
                 if (this.CheckKingShah(endCell, board, boardFunctions))
                 {
@@ -220,17 +233,7 @@ namespace Game
             {
                 endCell = this.GetOpponentKing(FigursColors.Red, board);
             }
-            List<Cell> opponentFigurs = this.GetOpponentFigures(figurColor, board);
-
-            for (int i = 0; i < opponentFigurs.Count; i++)
-            {
-                if (this.CanMove(opponentFigurs[i], endCell, board, boardFunctions))
-                {
-                    return true;
-                }
-            }
-            //this.CheckKingShah(opponentFigurs[0], board, boardFunctions);
-            return false;
+            return IsKingShah(endCell, board, endCell.Figur.Color, boardFunctions);
         }
         private List<Cell> GetOpponentFigures(FigursColors figursColors, Board board)
         {
@@ -357,22 +360,29 @@ namespace Game
             {
                 char startLet;
                 char endLet;
+                int num = (int)startCell.Number;
+
                 if (startCell.Letter > endCell.Letter)
                 {
                     endLet = (char)(startCell.Letter - 1);
                     startLet = (char)endCell.Letter;
+                    for (char i = endLet; i > startLet; i--)
+                    {
+                        string position = i + num.ToString();
+                        Cell cell = boardFunctions.GetCellByPosition(position, board);
+                        rookRoad.Add(cell);
+                    }
                 }
                 else
                 {
                     startLet = (char)(startCell.Letter + 1);
                     endLet = (char)endCell.Letter;
-                }
-                int num = (int)startCell.Number;
-                for (char i = startLet; i < endLet; i++)
-                {
-                    string position = i + num.ToString();
-                    Cell cell = boardFunctions.GetCellByPosition(position, board);
-                    rookRoad.Add(cell);
+                    for (char i = startLet; i < endLet; i++)
+                    {
+                        string position = i + num.ToString();
+                        Cell cell = boardFunctions.GetCellByPosition(position, board);
+                        rookRoad.Add(cell);
+                    }
                 }
                 return rookRoad;
             }
