@@ -12,7 +12,7 @@ namespace ClassicChess.Entities.Figurs.Combines
         Letters Letter { get; set; }
         FigursColors Color { get; }
         List<(Cell,Cell)> FigureHistory { get; set; }
-        ConsoleColor colorBackgraund { get; set; }
+        CellsColors colorBackgraund { get; set; }
         /// <summary>
         /// This function ensures the theoretical movement of the figure, ie theoretically the figure can be moved to a given cell
         /// </summary>

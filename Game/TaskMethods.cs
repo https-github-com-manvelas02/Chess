@@ -52,7 +52,7 @@ namespace Game
         #region Knight Tasks
         public void CreateOnlyKnight()
         {
-            knight = new Knight(FigursColors.Green);
+            knight = new Knight(FigursColors.White);
         }
         public List<string> GetKnightRoad(string startPosition, string endPosition)
         {
@@ -121,7 +121,7 @@ namespace Game
         }
         public bool GiveFigureColor()
         {
-            if (this.startCell.Figur.Color == FigursColors.Green)
+            if (this.startCell.Figur.Color == FigursColors.White)
             {
                 return true;
             }

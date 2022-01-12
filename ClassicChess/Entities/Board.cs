@@ -101,11 +101,11 @@ namespace ClassicChess.Entities
             {
                 if (i == 0)
                 {
-                    figursColors = FigursColors.Green;
+                    figursColors = FigursColors.White;
                 }
                 else
                 {
-                    figursColors = FigursColors.Red;
+                    figursColors = FigursColors.Black;
                 }
 
                 Rook rook1 = new Rook(figursColors);
@@ -154,7 +154,7 @@ namespace ClassicChess.Entities
                     this.Cells[cellIndex].Figur = Figurs[i];
                     this.Cells[cellIndex].Figur.Number = this.Cells[cellIndex].Number;
                     this.Cells[cellIndex].Figur.Letter = this.Cells[cellIndex].Letter;
-                    this.Cells[cellIndex].Figur.colorBackgraund = (ConsoleColor)this.Cells[cellIndex].Color;
+                    this.Cells[cellIndex].Figur.colorBackgraund = this.Cells[cellIndex].Color;
                     cellIndex++;
                 }
             }

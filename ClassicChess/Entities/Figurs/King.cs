@@ -12,7 +12,7 @@ namespace ClassicChess.Entities.Figurs
         public Numbers Number { get; set; }
         public Letters Letter { get; set; }
         public FigursColors Color { get; }
-        public ConsoleColor colorBackgraund { get; set; }
+        public CellsColors colorBackgraund { get; set; }
         public List<(Cell, Cell)> FigureHistory { get; set; } = new List<(Cell, Cell)>();
 
         public King(FigursColors color)

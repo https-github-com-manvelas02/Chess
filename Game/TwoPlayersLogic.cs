@@ -37,24 +37,24 @@ namespace Game
                 {
                     board.Cells.FirstOrDefault(cell => cell == endCell).Figur = null;
                     board.Cells.FirstOrDefault(cell => cell == startCell).Figur = newFigur;
-                    board.Cells.FirstOrDefault(cell => cell == startCell).Figur.colorBackgraund = (ConsoleColor)startCell.Color;
+                    board.Cells.FirstOrDefault(cell => cell == startCell).Figur.colorBackgraund = startCell.Color;
                     return false;
                 }
                 //es else-y petqa hanem bayc ira gorcaruyty pti mna vor ete irak karoly shaxi tak chi guyny dzi
                 else
                 {
                     Cell kingCell;
-                    if (endCell.Figur.Color == FigursColors.Green)
+                    if (endCell.Figur.Color == FigursColors.White)
                     {
-                        kingCell = this.GetOpponentKing(FigursColors.Red, board);
+                        kingCell = this.GetOpponentKing(FigursColors.Black, board);
                     }
                     else
                     {
-                        kingCell = this.GetOpponentKing(FigursColors.Green, board);
+                        kingCell = this.GetOpponentKing(FigursColors.White, board);
                     }
                     if (kingCell != null)
                     {
-                        this.ChangeFigurBackgraund(kingCell, (ConsoleColor)kingCell.Color, board);
+                        this.ChangeFigurBackgraund(kingCell, kingCell.Color, board);
                     }
                 }
                 return true;
@@ -65,13 +65,13 @@ namespace Game
         public bool IsPat(FigursColors figurColor, Board board)
         {
             List<Cell> figures;
-            if (figurColor == FigursColors.Red)
+            if (figurColor == FigursColors.Black)
             {
-                figures = this.GetOpponentFigures(FigursColors.Green, board);
+                figures = this.GetOpponentFigures(FigursColors.White, board);
             }
             else
             {
-                figures = this.GetOpponentFigures(FigursColors.Red, board);
+                figures = this.GetOpponentFigures(FigursColors.Black, board);
             }
             for (int i = 0; i < figures.Count; i++)
             {
@@ -90,7 +90,7 @@ namespace Game
             board.Cells.FirstOrDefault(c => c == cell).Figur = figure;
             board.Cells.FirstOrDefault(c => c == cell).Figur.Number = cell.Number;
             board.Cells.FirstOrDefault(c => c == cell).Figur.Letter = cell.Letter;
-            board.Cells.FirstOrDefault(c => c == cell).Figur.colorBackgraund = (ConsoleColor)board.Cells.FirstOrDefault(c => c == cell).Color;
+            board.Cells.FirstOrDefault(c => c == cell).Figur.colorBackgraund = board.Cells.FirstOrDefault(c => c == cell).Color;
         }
         public bool IsMat(Cell cell, Board board)
         {
@@ -102,15 +102,15 @@ namespace Game
                 Road.Add(cell);
                 if (this.CanKeepKing(opponentFigures,Road,board))
                 {
-                    this.ChangeFigurBackgraund(KingCell, ConsoleColor.DarkYellow, board);
+                    this.ChangeFigurBackgraund(KingCell, CellsColors.DarkYellow, board);
                     return false;
                 }
                 if(this.CanKingEscape(KingCell, board))
                 {
-                    this.ChangeFigurBackgraund(KingCell, ConsoleColor.DarkYellow, board);
+                    this.ChangeFigurBackgraund(KingCell, CellsColors.DarkYellow, board);
                     return false;
                 }
-                this.ChangeFigurBackgraund(KingCell, ConsoleColor.Blue, board);
+                this.ChangeFigurBackgraund(KingCell, CellsColors.Blue, board);
                 return true;
             }
             return false;
@@ -130,7 +130,7 @@ namespace Game
             board.History.Add((figur, (startCell, endCell)));
             board.Cells.FirstOrDefault(cell => cell == endCell).Figur = newFigur;
             board.Cells.FirstOrDefault(cell => cell == startCell).Figur = null;
-            board.Cells.FirstOrDefault(cell => cell == endCell).Figur.colorBackgraund = (ConsoleColor)endCell.Color;
+            board.Cells.FirstOrDefault(cell => cell == endCell).Figur.colorBackgraund = endCell.Color;
         }
         private bool IsTheLastHistory((Cell, Cell) lHist, Board board)
         {
@@ -210,7 +210,7 @@ namespace Game
             }
             return newFigur;
         }
-        private void ChangeFigurBackgraund(Cell cell, ConsoleColor color, Board board)
+        private void ChangeFigurBackgraund(Cell cell, CellsColors color, Board board)
         {
             board.Cells.FirstOrDefault(c => c == cell).Figur.colorBackgraund = color;
         }
@@ -307,25 +307,25 @@ namespace Game
             Cell endCell = this.GetOpponentKing(cell.Figur.Color, board);
             if (this.CanFigureMove(cell, endCell, board))
             {
-                this.ChangeFigurBackgraund(endCell, ConsoleColor.DarkYellow, board);
+                this.ChangeFigurBackgraund(endCell, CellsColors.DarkYellow, board);
                 return true;
             }
             else
             {
-                this.ChangeFigurBackgraund(endCell, (ConsoleColor)endCell.Color, board);
+                this.ChangeFigurBackgraund(endCell, endCell.Color, board);
                 return false;
             }
         }
         private bool CheckYourKingShah(FigursColors figurColor, Board board)
         {
             Cell endCell;
-            if (figurColor == FigursColors.Red)
+            if (figurColor == FigursColors.Black)
             {
-                endCell = this.GetOpponentKing(FigursColors.Green, board);
+                endCell = this.GetOpponentKing(FigursColors.White, board);
             }
             else
             {
-                endCell = this.GetOpponentKing(FigursColors.Red, board);
+                endCell = this.GetOpponentKing(FigursColors.Black, board);
             }
             if (endCell == null)
             {
@@ -475,7 +475,7 @@ namespace Game
             if (Math.Abs(startCell.Number - endCell.Number) == 2)
             {
                 int start;
-                if (startCell.Figur.Color == FigursColors.Red)
+                if (startCell.Figur.Color == FigursColors.Black)
                 {
                     start = (int)endCell.Number + 1;
                 }

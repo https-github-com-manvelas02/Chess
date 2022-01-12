@@ -12,7 +12,7 @@ namespace ClassicChess.Entities.Figurs
         public Numbers Number { get; set; }
         public Letters Letter { get; set; }
         public FigursColors Color { get; }
-        public ConsoleColor colorBackgraund { get; set; }
+        public CellsColors colorBackgraund { get; set; }
         public List<(Cell, Cell)> FigureHistory { get; set; } = new List<(Cell, Cell)>();
 
 
@@ -24,7 +24,7 @@ namespace ClassicChess.Entities.Figurs
         {
             if (!IsSamePos(cell))
             {
-                if (this.Color == FigursColors.Green)
+                if (this.Color == FigursColors.White)
                 {
                     if ((int)(this.Number) == 2)
                     {
@@ -54,7 +54,7 @@ namespace ClassicChess.Entities.Figurs
                         }
                     }
                 }
-                else if (this.Color == FigursColors.Red)
+                else if (this.Color == FigursColors.Black)
                 {
                     if ((int)(this.Number) == 7)
                     {

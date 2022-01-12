@@ -226,7 +226,7 @@ namespace Chess.UserInterface
                     string toWrite;
                     if (this.taskMethods.board.Cells[j].Figur != null)
                     {
-                        Console.BackgroundColor = this.taskMethods.board.Cells[j].Figur.colorBackgraund;
+                        Console.BackgroundColor = (ConsoleColor)this.taskMethods.board.Cells[j].Figur.colorBackgraund;
                     }
                     else
                     {

@@ -5,7 +5,7 @@
     /// </summary>
     public enum FigursColors
     {
-        Red = 12,
-        Green = 10
+        Black = 12,
+        White = 10
     }
 }

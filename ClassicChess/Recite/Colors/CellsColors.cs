@@ -6,6 +6,8 @@
     public enum CellsColors
     {
         White = 15,
-        Black = 0
+        Black = 0,
+        DarkYellow = 6,
+        Blue = 9
     }
 }
