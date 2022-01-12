@@ -12,50 +12,35 @@ namespace Game
     /// </summary>
     public class TwoPlayersLogic
     {
-        public bool CanFigureMove(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions, out bool isMat)
+        IFigure figur;
+        IFigure newFigur;
+        Cell startRookRakirovka;
+        Cell endRookRakirovka;
+
+        #region Functions
+
+        #region Public
+        public bool CanMove(Cell startCell, Cell endCell, Board board)
         {
-            IFigure figur = startCell.Figur;
-            IFigure newFigur = null;
-            isMat = false;
-            if (this.CanMove(startCell, endCell, board, boardFunctions))
+            figur = startCell.Figur;
+            if (this.CanFigureMove(startCell, endCell, board))
             {
-                if (figur.GetType() == typeof(Knight))
+                if (this.CanRakirovka(startCell, endCell, board))
                 {
-                    newFigur = new Knight(figur.Color);
+                    this.Rakirovka(startCell, endCell, board);
+                    return true;
                 }
-                else if (figur.GetType() == typeof(Pawn))
-                {
-                    newFigur = new Pawn(figur.Color);
-                }
-                else if (figur.GetType() == typeof(Bishop))
-                {
-                    newFigur = new Bishop(figur.Color);
-                }
-                else if (figur.GetType() == typeof(Rook))
-                {
-                    newFigur = new Rook(figur.Color);
-                }
-                else if (figur.GetType() == typeof(Queen))
-                {
-                    newFigur = new Queen(figur.Color);
-                }
-                else if (figur.GetType() == typeof(King))
-                {
-                    newFigur = new King(figur.Color);
-                }
-                newFigur.Number = endCell.Number;
-                newFigur.Letter = endCell.Letter;
-                newFigur.FigureHistory.AddRange(figur.FigureHistory);
-                newFigur.FigureHistory.Add((startCell, endCell));
-                board.History.Add((figur, (startCell, endCell)));
-                board.Cells.FirstOrDefault(cell => cell == endCell).Figur = newFigur;
-                board.Cells.FirstOrDefault(cell => cell == startCell).Figur = null;
-                if (this.CheckYourKingShah(endCell.Figur.Color, board, boardFunctions))
+
+                this.Move(startCell, endCell, board);
+
+                if (this.CheckYourKingShah(endCell.Figur.Color, board))
                 {
                     board.Cells.FirstOrDefault(cell => cell == endCell).Figur = null;
                     board.Cells.FirstOrDefault(cell => cell == startCell).Figur = newFigur;
+                    board.Cells.FirstOrDefault(cell => cell == startCell).Figur.colorBackgraund = (ConsoleColor)startCell.Color;
                     return false;
                 }
+                //es else-y petqa hanem bayc ira gorcaruyty pti mna vor ete irak karoly shaxi tak chi guyny dzi
                 else
                 {
                     Cell kingCell;
@@ -67,20 +52,17 @@ namespace Game
                     {
                         kingCell = this.GetOpponentKing(FigursColors.Green, board);
                     }
-                    this.ChangeFigurBackgraund(kingCell, (ConsoleColor)kingCell.Color, board);
-                }
-                board.Cells.FirstOrDefault(cell => cell == endCell).Figur.colorBackgraund = (ConsoleColor)board.Cells.FirstOrDefault(cell => cell == endCell).Color;
-                if (this.CheckKingShah(endCell, board, boardFunctions))
-                {
-                    isMat = this.IsMat(endCell, board, boardFunctions);
-                    return true;
+                    if (kingCell != null)
+                    {
+                        this.ChangeFigurBackgraund(kingCell, (ConsoleColor)kingCell.Color, board);
+                    }
                 }
                 return true;
             }
 
             return false;
         }
-        public bool IsPat(FigursColors figurColor, Board board, FunctionsForBoard boardFunctions)
+        public bool IsPat(FigursColors figurColor, Board board)
         {
             List<Cell> figures;
             if (figurColor == FigursColors.Red)
@@ -95,7 +77,7 @@ namespace Game
             {
                 for (int j = 0; j < board.Cells.Count; j++)
                 {
-                    if (this.CanMove(figures[i], board.Cells[j], board, boardFunctions))
+                    if (this.CanFigureMove(figures[i], board.Cells[j], board))
                     {
                         return false;
                     }
@@ -103,19 +85,80 @@ namespace Game
             }
             return true;
         }
-        public void ChangeFigure(Cell cell, IFigure figure, Board board, FunctionsForBoard boardFunctions)
+        public void ChangeFigure(Cell cell, IFigure figure, Board board)
         {
             board.Cells.FirstOrDefault(c => c == cell).Figur = figure;
             board.Cells.FirstOrDefault(c => c == cell).Figur.Number = cell.Number;
             board.Cells.FirstOrDefault(c => c == cell).Figur.Letter = cell.Letter;
             board.Cells.FirstOrDefault(c => c == cell).Figur.colorBackgraund = (ConsoleColor)board.Cells.FirstOrDefault(c => c == cell).Color;
         }
-        private bool CanMove(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
+        public bool IsMat(Cell cell, Board board)
+        {
+            if (this.CheckKingShah(cell, board))
+            {
+                List<Cell> opponentFigures = this.GetOpponentFigures(cell.Figur.Color, board);
+                Cell KingCell = this.GetOpponentKing(cell.Figur.Color, board);
+                List<Cell> Road = this.GetRoad(cell, KingCell, board);
+                Road.Add(cell);
+                if (this.CanKeepKing(opponentFigures,Road,board))
+                {
+                    this.ChangeFigurBackgraund(KingCell, ConsoleColor.DarkYellow, board);
+                    return false;
+                }
+                if(this.CanKingEscape(KingCell, board))
+                {
+                    this.ChangeFigurBackgraund(KingCell, ConsoleColor.DarkYellow, board);
+                    return false;
+                }
+                this.ChangeFigurBackgraund(KingCell, ConsoleColor.Blue, board);
+                return true;
+            }
+            return false;
+        }
+        #endregion
+
+        #region Private
+
+        private void Move(Cell startCell, Cell endCell, Board board)
+        {
+            figur = startCell.Figur;
+            newFigur = this.GetFigure(figur);
+            newFigur.Number = endCell.Number;
+            newFigur.Letter = endCell.Letter;
+            newFigur.FigureHistory.AddRange(figur.FigureHistory);
+            newFigur.FigureHistory.Add((startCell, endCell));
+            board.History.Add((figur, (startCell, endCell)));
+            board.Cells.FirstOrDefault(cell => cell == endCell).Figur = newFigur;
+            board.Cells.FirstOrDefault(cell => cell == startCell).Figur = null;
+            board.Cells.FirstOrDefault(cell => cell == endCell).Figur.colorBackgraund = (ConsoleColor)endCell.Color;
+        }
+        private bool IsTheLastHistory((Cell, Cell) lHist, Board board)
+        {
+            int length = board.History.Count;
+            return board.History[length - 1].Item2 == lHist;
+        }
+
+        #region About Figures
+        private bool CanFigureMove(Cell startCell, Cell endCell, Board board)
         {
 
             List<Cell> Road = new List<Cell>();
 
-            IFigure figur = startCell.Figur;
+            figur = startCell.Figur;
+            if (figur.GetType() == typeof(King))
+            {
+                if (CanRakirovka(startCell, endCell, board))
+                {
+                    return true;
+                }
+            }
+            if (figur.GetType() == typeof(Pawn))
+            {
+                if (this.CanPawnEat(startCell, endCell, board))
+                {
+                    return true;
+                }
+            }
             if (figur.IsMove(endCell))
             {
                 if (figur.GetType() == typeof(Knight))
@@ -124,116 +167,52 @@ namespace Game
                 }
                 else if (figur.GetType() == typeof(King))
                 {
-                    if (this.CanKingMove(startCell, endCell, board, boardFunctions))
+                    if (this.CanKingMove(startCell, endCell, board))
                     {
                         return true;
                     }
-                    else
-                    {
-                        return false;
-                    }
                 }
-                Road = this.GetRoad(startCell, endCell, board, boardFunctions);
-                for (int i = 0; i < Road.Count; i++)
+                else
                 {
-                    if (Road[i].Figur != null)
-                    {
-                        return false;
-                    }
+                    Road = this.GetRoad(startCell, endCell, board);
+                    return this.IsRoadEmpty(Road);
                 }
-                return true;
             }
             return false;
+
         }
-        private List<Cell> GetRoad(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
+        private IFigure GetFigure(IFigure figur)
         {
-            List<Cell> Road = new List<Cell>();
-
-            IFigure figur = startCell.Figur;
-
-            if (figur.GetType() == typeof(Pawn))
+            newFigur = null;
+            if (figur.GetType() == typeof(Knight))
             {
-                Road = this.PawnMoveRoad(startCell, endCell, board, boardFunctions);
+                newFigur = new Knight(figur.Color);
+            }
+            else if (figur.GetType() == typeof(Pawn))
+            {
+                newFigur = new Pawn(figur.Color);
             }
             else if (figur.GetType() == typeof(Bishop))
             {
-                Road = this.BishopMoveRoad(startCell, endCell, board, boardFunctions);
+                newFigur = new Bishop(figur.Color);
             }
             else if (figur.GetType() == typeof(Rook))
             {
-                Road = this.RookMoveRoad(startCell, endCell, board, boardFunctions);
+                newFigur = new Rook(figur.Color);
             }
             else if (figur.GetType() == typeof(Queen))
             {
-                Road = this.QueenMoveRoad(startCell, endCell, board, boardFunctions);
+                newFigur = new Queen(figur.Color);
             }
-            return Road;
-        }
-        private bool IsMat(Cell cell, Board board, FunctionsForBoard boardFunctions)
-        {
-            List<Cell> opponentFigures = this.GetOpponentFigures(cell.Figur.Color, board);
-            Cell KingCell = this.GetOpponentKing(cell.Figur.Color, board);
-            List<Cell> Road = this.GetRoad(cell, KingCell, board, boardFunctions);
-            Road.Add(cell);
-            for (int i = 0; i < opponentFigures.Count; i++)
+            else if (figur.GetType() == typeof(King))
             {
-                for (int j = 0; j < Road.Count; j++)
-                {
-                    if (this.CanMove(opponentFigures[i], Road[j], board, boardFunctions))
-                    {
-                        IFigure figure = board.Cells.FirstOrDefault(c => c == opponentFigures[i]).Figur;
-                        IFigure tempfigure = null;
-                        bool haveRoadJFigure;
-                        if (board.Cells.FirstOrDefault(c => c == Road[j]).Figur != null)
-                        {
-                            tempfigure = board.Cells.FirstOrDefault(c => c == Road[j]).Figur;
-                        }
-                        board.Cells.FirstOrDefault(c => c == Road[j]).Figur = figure;
-                        board.Cells.FirstOrDefault(c => c == opponentFigures[i]).Figur = null;
-                        if (!CheckYourKingShah(Road[j].Figur.Color, board, boardFunctions))
-                        {
-                            board.Cells.FirstOrDefault(c => c == opponentFigures[i]).Figur = figure;
-                            board.Cells.FirstOrDefault(c => c == Road[j]).Figur = tempfigure;
-                            return false;
-                        }
-                        board.Cells.FirstOrDefault(c => c == opponentFigures[i]).Figur = figure;
-                        board.Cells.FirstOrDefault(c => c == Road[j]).Figur = tempfigure;
-                    }
-                }
+                newFigur = new King(figur.Color);
             }
-            this.ChangeFigurBackgraund(KingCell, ConsoleColor.Blue, board);
-            return true;
-        }
-        private bool CheckKingShah(Cell cell, Board board, FunctionsForBoard boardFunctions)
-        {
-            Cell endCell = this.GetOpponentKing(cell.Figur.Color, board);
-            if (this.CanMove(cell, endCell, board, boardFunctions))
-            {
-                this.ChangeFigurBackgraund(endCell, ConsoleColor.DarkYellow, board);
-                return true;
-            }
-            else
-            {
-                this.ChangeFigurBackgraund(endCell, (ConsoleColor)endCell.Color, board);
-                return false;
-            }
+            return newFigur;
         }
         private void ChangeFigurBackgraund(Cell cell, ConsoleColor color, Board board)
         {
             board.Cells.FirstOrDefault(c => c == cell).Figur.colorBackgraund = color;
-        }
-        private bool CheckYourKingShah(FigursColors figurColor, Board board, FunctionsForBoard boardFunctions)
-        {
-            Cell endCell;
-            if (figurColor == FigursColors.Red)
-            {
-                endCell = this.GetOpponentKing(FigursColors.Green, board);
-            }
-            else
-            {
-                endCell = this.GetOpponentKing(FigursColors.Red, board);
-            }
-            return IsKingShah(endCell, board, endCell.Figur.Color, boardFunctions);
         }
         private List<Cell> GetOpponentFigures(FigursColors figursColors, Board board)
         {
@@ -250,6 +229,30 @@ namespace Game
             }
             return list;
         }
+        private bool CanPawnEat(Cell startCell, Cell endCell, Board board)
+        {
+            figur = startCell.Figur;
+            if (!figur.IsMove(endCell))
+            {
+                if (endCell.Figur == null)
+                {
+                    string possition = (char)endCell.Letter + ((int)startCell.Number).ToString();
+                    Cell cell = board.GetCellByPosition(possition);
+                    if (cell.Figur != null && cell.Figur.Color != figur.Color)
+                    {
+                        if (cell.Figur.FigureHistory.Count == 1 && this.IsTheLastHistory(cell.Figur.FigureHistory[0], board))
+                        {
+                            board.Cells.FirstOrDefault(c => c == cell).Figur = null;
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+        #endregion
+
+        #region About King
         private Cell GetOpponentKing(FigursColors figursColors, Board board)
         {
             for (int i = 0; i < board.Cells.Count; i++)
@@ -264,7 +267,209 @@ namespace Game
             }
             return null;
         }
-        private List<Cell> PawnMoveRoad(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
+        private bool CanKingMove(Cell startCell, Cell endCell, Board board)
+        {
+            FigursColors figursColors = startCell.Figur.Color;
+            if (endCell.Figur == null)
+            {
+                if (!IsKingShah(endCell, figursColors, board))
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                if (endCell.Figur.Color != figursColors)
+                {
+                    Cell tempCell = new Cell(endCell);
+                    if (!IsKingShah(tempCell, figursColors, board))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        private bool IsKingShah(Cell cell, FigursColors figurColor, Board board)
+        {
+            List<Cell> cells = this.GetOpponentFigures(figurColor, board);
+            for (int i = 0; i < cells.Count; i++)
+            {
+                if (this.CanFigureMove(cells[i], cell, board))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        private bool CheckKingShah(Cell cell, Board board)
+        {
+            Cell endCell = this.GetOpponentKing(cell.Figur.Color, board);
+            if (this.CanFigureMove(cell, endCell, board))
+            {
+                this.ChangeFigurBackgraund(endCell, ConsoleColor.DarkYellow, board);
+                return true;
+            }
+            else
+            {
+                this.ChangeFigurBackgraund(endCell, (ConsoleColor)endCell.Color, board);
+                return false;
+            }
+        }
+        private bool CheckYourKingShah(FigursColors figurColor, Board board)
+        {
+            Cell endCell;
+            if (figurColor == FigursColors.Red)
+            {
+                endCell = this.GetOpponentKing(FigursColors.Green, board);
+            }
+            else
+            {
+                endCell = this.GetOpponentKing(FigursColors.Red, board);
+            }
+            if (endCell == null)
+            {
+                return false;
+            }
+            return IsKingShah(endCell, endCell.Figur.Color, board);
+        }
+        private bool CanRakirovka(Cell startCell, Cell endCell, Board board)
+        {
+            figur = startCell.Figur;
+
+            if (figur.GetType() == typeof(King))
+            {
+                if (figur.FigureHistory.Count == 0)
+                {
+                    if (Math.Abs(startCell.Letter - endCell.Letter) == 2)
+                    {
+                        Cell rook1Cell = board.Cells.FirstOrDefault(c => c.Figur != null && c.Figur.GetType() == typeof(Rook) && c.Figur.Color == figur.Color);
+                        Cell rook2Cell = board.Cells.LastOrDefault(c => c.Figur != null && c.Figur.GetType() == typeof(Rook) && c.Figur.Color == figur.Color);
+                        if (rook1Cell != null && rook1Cell.Figur.FigureHistory.Count == 0)
+                        {
+                            if ((int)(endCell.Letter - rook1Cell.Letter) == 2)
+                            {
+                                List<Cell> road = this.GetRoad(rook1Cell, startCell, board);
+                                if (this.IsRoadEmpty(road))
+                                {
+                                    if (!IsKingShah(endCell, figur.Color, board))
+                                    {
+                                        startRookRakirovka = rook1Cell;
+                                        endRookRakirovka = board.Cells.FirstOrDefault(c => c.Letter == Letters.D && c.Number == rook1Cell.Number);
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                        if (rook2Cell != null && rook2Cell.Figur.FigureHistory.Count == 0)
+                        {
+                            if ((int)(rook2Cell.Letter - endCell.Letter) == 1)
+                            {
+                                List<Cell> road = this.GetRoad(rook2Cell, startCell, board);
+                                if (this.IsRoadEmpty(road))
+                                {
+                                    if (!IsKingShah(endCell, figur.Color, board))
+                                    {
+                                        startRookRakirovka = rook2Cell;
+                                        endRookRakirovka = board.Cells.FirstOrDefault(c => c.Letter == Letters.F && c.Number == rook2Cell.Number);
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+        private void Rakirovka(Cell startCell, Cell endCell, Board board)
+        {
+            this.Move(startCell, endCell, board);
+            this.Move(startRookRakirovka, endRookRakirovka, board);
+        }
+        private bool CanKeepKing(List<Cell> opponentFigures, List<Cell> Road,Board board)
+        {
+            for (int i = 0; i < opponentFigures.Count; i++)
+            {
+                for (int j = 0; j < Road.Count; j++)
+                {
+                    if (this.CanFigureMove(opponentFigures[i], Road[j], board))
+                    {
+                        IFigure attFigur = board.Cells.FirstOrDefault(c => c == opponentFigures[i]).Figur;
+                        IFigure tempfigure = null;
+                        bool haveRoadJFigure;
+                        if (board.Cells.FirstOrDefault(c => c == Road[j]).Figur != null)
+                        {
+                            tempfigure = board.Cells.FirstOrDefault(c => c == Road[j]).Figur;
+                        }
+                        board.Cells.FirstOrDefault(c => c == Road[j]).Figur = attFigur;
+                        board.Cells.FirstOrDefault(c => c == opponentFigures[i]).Figur = null;
+                        if (!CheckYourKingShah(Road[j].Figur.Color, board))
+                        {
+                            board.Cells.FirstOrDefault(c => c == opponentFigures[i]).Figur = attFigur;
+                            board.Cells.FirstOrDefault(c => c == Road[j]).Figur = tempfigure;
+                            return true;
+                        }
+                        board.Cells.FirstOrDefault(c => c == opponentFigures[i]).Figur = attFigur;
+                        board.Cells.FirstOrDefault(c => c == Road[j]).Figur = tempfigure;
+                    }
+                }
+            }
+            return false;
+
+        }
+        private bool CanKingEscape(Cell kingCell,Board board)
+        {
+            List<Cell> kingPosPosit = this.GetKingPossPosit(kingCell, board);
+            foreach (var item in kingPosPosit)
+            {
+                if (CanKingMove(kingCell,item,board))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        private List<Cell> GetKingPossPosit(Cell kingCell,Board board)
+        {
+            List<Cell> possPosit = new List<Cell>();
+            foreach (var item in board.Cells)
+            {
+                if (Math.Abs(item.Letter - kingCell.Letter) <= 1  && Math.Abs(item.Number - kingCell.Number) <= 1 && !kingCell.Figur.IsSamePos(item))
+                {
+                    possPosit.Add(item);
+                }
+            }
+            return possPosit;
+        }
+        #endregion
+
+        #region About Road
+        private List<Cell> GetRoad(Cell startCell, Cell endCell, Board board)
+        {
+            List<Cell> Road = new List<Cell>();
+
+            figur = startCell.Figur;
+
+            if (figur.GetType() == typeof(Pawn))
+            {
+                Road = this.PawnMoveRoad(startCell, endCell, board);
+            }
+            else if (figur.GetType() == typeof(Bishop))
+            {
+                Road = this.BishopMoveRoad(startCell, endCell, board);
+            }
+            else if (figur.GetType() == typeof(Rook))
+            {
+                Road = this.RookMoveRoad(startCell, endCell, board);
+            }
+            else if (figur.GetType() == typeof(Queen))
+            {
+                Road = this.QueenMoveRoad(startCell, endCell, board);
+            }
+            return Road;
+        }
+        private List<Cell> PawnMoveRoad(Cell startCell, Cell endCell, Board board)
         {
             List<Cell> list = new List<Cell>();
             if (Math.Abs(startCell.Number - endCell.Number) == 2)
@@ -279,186 +484,123 @@ namespace Game
                     start = (int)startCell.Number + 1;
                 }
                 string position = (char)startCell.Letter + start.ToString();
-                Cell cell = boardFunctions.GetCellByPosition(position, board);
+                Cell cell = board.GetCellByPosition(position);
                 list.Add(cell);
             }
             return list;
         }
-        private List<Cell> BishopMoveRoad(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
+        private List<Cell> BishopMoveRoad(Cell startCell, Cell endCell, Board board)
         {
             List<Cell> bishopRoad = new List<Cell>();
             int startNum;
             int endNum;
             char startLet;
-            if (startCell.Letter > endCell.Letter && startCell.Number > endCell.Number)
+
+            if (startCell.Letter > endCell.Letter)
             {
                 startLet = (char)(startCell.Letter - 1);
-                startNum = (int)(startCell.Number - 1);
-                endNum = (int)(endCell.Number + 1);
-                if (startNum == endNum)
-                {
-                    string position = startLet + startNum.ToString();
-                    Cell cell = boardFunctions.GetCellByPosition(position, board);
-                    bishopRoad.Add(cell);
-                }
-                else
-                {
-                    for (int i = startNum; i <= endNum; i--)
-                    {
-                        string position = startLet + i.ToString();
-                        Cell cell = boardFunctions.GetCellByPosition(position, board);
-                        bishopRoad.Add(cell);
-                        startLet--;
-                    }
-                }
-            }
-            else if (startCell.Letter > endCell.Letter && startCell.Number < endCell.Number)
-            {
-                startLet = (char)(startCell.Letter - 1);
-                startNum = (int)(startCell.Number + 1);
-                endNum = (int)(endCell.Number - 1);
-                for (int i = startNum; i <= endNum; i++)
-                {
-                    string position = startLet + i.ToString();
-                    Cell cell = boardFunctions.GetCellByPosition(position, board);
-                    bishopRoad.Add(cell);
-                    startLet--;
-                }
-            }
-            else if (startCell.Letter < endCell.Letter && startCell.Number > endCell.Number)
-            {
-                startLet = (char)(startCell.Letter + 1);
-                startNum = (int)(startCell.Number - 1);
-                endNum = (int)(endCell.Number + 1);
-                for (int i = startNum; i <= endNum; i--)
-                {
-                    string position = startLet + i.ToString();
-                    Cell cell = boardFunctions.GetCellByPosition(position, board);
-                    bishopRoad.Add(cell);
-                    startLet++;
-                }
             }
             else
             {
                 startLet = (char)(startCell.Letter + 1);
+            }
+            if (startCell.Number > endCell.Number)
+            {
+                startNum = (int)(endCell.Number + 1);
+                endNum = (int)(startCell.Number - 1);
+            }
+            else
+            {
                 startNum = (int)(startCell.Number + 1);
                 endNum = (int)(endCell.Number - 1);
-                for (int i = startNum; i <= endNum; i++)
-                {
-                    string position = startLet + i.ToString();
-                    Cell cell = boardFunctions.GetCellByPosition(position, board);
-                    bishopRoad.Add(cell);
-                    startLet++;
-                }
             }
+            for (int i = startNum; i <= endNum; i++)
+            {
+                string position = startLet + i.ToString();
+                Cell cell = board.GetCellByPosition(position);
+                bishopRoad.Add(cell);
+                startLet++;
+            }
+
             return bishopRoad;
         }
-        private List<Cell> RookMoveRoad(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
+        private List<Cell> RookMoveRoad(Cell startCell, Cell endCell, Board board)
         {
             List<Cell> rookRoad = new List<Cell>();
+            char let;
+            char endLet;
+            int num;
+            int endNum;
+
             if (startCell.Number == endCell.Number)
             {
-                char startLet;
-                char endLet;
-                int num = (int)startCell.Number;
-
+                num = (int)startCell.Number;
                 if (startCell.Letter > endCell.Letter)
                 {
+                    let = (char)(endCell.Letter + 1);
                     endLet = (char)(startCell.Letter - 1);
-                    startLet = (char)endCell.Letter;
-                    for (char i = endLet; i > startLet; i--)
-                    {
-                        string position = i + num.ToString();
-                        Cell cell = boardFunctions.GetCellByPosition(position, board);
-                        rookRoad.Add(cell);
-                    }
                 }
                 else
                 {
-                    startLet = (char)(startCell.Letter + 1);
-                    endLet = (char)endCell.Letter;
-                    for (char i = startLet; i < endLet; i++)
-                    {
-                        string position = i + num.ToString();
-                        Cell cell = boardFunctions.GetCellByPosition(position, board);
-                        rookRoad.Add(cell);
-                    }
+                    let = (char)(startCell.Letter + 1);
+                    endLet = (char)(endCell.Letter - 1);
                 }
-                return rookRoad;
+                for (char letter = let; letter <= endLet; letter++)
+                {
+                    string position = letter + num.ToString();
+                    Cell cell = board.GetCellByPosition(position);
+                    rookRoad.Add(cell);
+                }
             }
             else
             {
-                int startNum;
-                int endNum;
-                char let = (char)startCell.Letter;
+                let = (char)(startCell.Letter);
                 if (startCell.Number > endCell.Number)
                 {
-                    startNum = (int)endCell.Number;
-                    endNum = (int)startCell.Number;
+                    num = (int)(endCell.Number + 1);
+                    endNum = (int)(startCell.Number - 1);
                 }
                 else
                 {
-                    startNum = (int)startCell.Number;
-                    endNum = (int)endCell.Number;
+                    num = (int)(startCell.Number + 1);
+                    endNum = (int)(endCell.Number - 1);
                 }
-                endNum--;
-                startNum++;
-                for (int i = startNum; i <= endNum; i++)
+                for (int number = num; number <= endNum; number++)
                 {
-                    string position = let + i.ToString();
-                    Cell cell = boardFunctions.GetCellByPosition(position, board);
+                    string position = let + number.ToString();
+                    Cell cell = board.GetCellByPosition(position);
                     rookRoad.Add(cell);
                 }
-                return rookRoad;
             }
+            return rookRoad;
         }
-        private List<Cell> QueenMoveRoad(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
+        private List<Cell> QueenMoveRoad(Cell startCell, Cell endCell, Board board)
         {
             List<Cell> queenRoad = new List<Cell>();
             if (startCell.Number == endCell.Number || startCell.Letter == endCell.Letter)
             {
-                queenRoad = this.RookMoveRoad(startCell, endCell, board, boardFunctions);
+                queenRoad = this.RookMoveRoad(startCell, endCell, board);
             }
             else
             {
-                queenRoad = this.BishopMoveRoad(startCell, endCell, board, boardFunctions);
+                queenRoad = this.BishopMoveRoad(startCell, endCell, board);
             }
             return queenRoad;
         }
-        private bool CanKingMove(Cell startCell, Cell endCell, Board board, FunctionsForBoard boardFunctions)
+        private bool IsRoadEmpty(List<Cell> road)
         {
-            FigursColors figursColors = startCell.Figur.Color;
-            if (endCell.Figur == null)
+            for (int i = 0; i < road.Count; i++)
             {
-                if (!IsKingShah(endCell, board, figursColors, boardFunctions))
+                if (road[i].Figur != null)
                 {
-                    return true;
+                    return false;
                 }
             }
-            else
-            {
-                if (endCell.Figur.Color != figursColors)
-                {
-                    Cell tempCell = new Cell(endCell);
-                    if (!IsKingShah(tempCell, board, figursColors, boardFunctions))
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
+            return true;
         }
-        private bool IsKingShah(Cell cell, Board board, FigursColors figurColor, FunctionsForBoard boardFunctions)
-        {
-            List<Cell> cells = this.GetOpponentFigures(figurColor, board);
-            for (int i = 0; i < cells.Count; i++)
-            {
-                if (this.CanMove(cells[i], cell, board, boardFunctions))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
+        #endregion
+        #endregion
+        #endregion
+
     }
 }

@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Console", "Chess\Console.csproj", "{18A131B2-78D1-4AAE-B567-E11AB227B801}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UI", "Chess\UI.csproj", "{18A131B2-78D1-4AAE-B567-E11AB227B801}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassicChess", "ClassicChess\ClassicChess.csproj", "{B6BAE18E-F114-4394-BB18-5B565D3F462D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassicChess", "ClassicChess\ClassicChess.csproj", "{B6BAE18E-F114-4394-BB18-5B565D3F462D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game", "Game\Game.csproj", "{CADE11E1-D875-429B-AADF-435A31233598}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Game", "Game\Game.csproj", "{CADE11E1-D875-429B-AADF-435A31233598}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

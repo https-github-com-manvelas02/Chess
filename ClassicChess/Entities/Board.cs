@@ -1,4 +1,5 @@
-﻿using ClassicChess.Entities.Figurs.Combines;
+﻿using ClassicChess.Entities.Figurs;
+using ClassicChess.Entities.Figurs.Combines;
 using ClassicChess.Recite;
 using ClassicChess.Recite.Colors;
 
@@ -74,6 +75,106 @@ namespace ClassicChess.Entities
                 return true;
             }
             return false;
+        }
+        public Cell GetCellByPosition(string position)
+        {
+            if (this.IsTruePosition(position))
+            {
+                int num;
+                int.TryParse(position[1].ToString(), out num);
+                char letter = position[0].ToString().ToUpper()[0];
+                for (int i = 0; i < this.Cells.Count; i++)
+                {
+                    if (this.Cells[i].Number == (Numbers)num && this.Cells[i].Letter == (Letters)letter)
+                    {
+                        return this.Cells[i];
+                    }
+                }
+            }
+            return null;
+        }
+        public  List<IFigure> CreateFigires()
+        {
+            List<IFigure> Figurs = new List<IFigure>();
+            FigursColors figursColors;
+            for (int i = 0; i < 2; i++)
+            {
+                if (i == 0)
+                {
+                    figursColors = FigursColors.Green;
+                }
+                else
+                {
+                    figursColors = FigursColors.Red;
+                }
+
+                Rook rook1 = new Rook(figursColors);
+                Knight knigth1 = new Knight(figursColors);
+                Bishop bishop1 = new Bishop(figursColors);
+                Queen queen = new Queen(figursColors);
+                King king = new King(figursColors);
+                Rook rook2 = new Rook(figursColors);
+                Knight knigth2 = new Knight(figursColors);
+                Bishop bishop2 = new Bishop(figursColors);
+                Figurs.Add(rook1);
+                Figurs.Add(knigth1);
+                Figurs.Add(bishop1);
+                Figurs.Add(queen);
+                Figurs.Add(king);
+                Figurs.Add(bishop2);
+                Figurs.Add(knigth2);
+                Figurs.Add(rook2);
+                for (int j = 0; j < 8; j++)
+                {
+                    Pawn pawn = new Pawn(figursColors);
+                    Figurs.Add(pawn);
+                }
+            }
+            return Figurs;
+        }
+        public bool ChekCellFigure(Cell cell)
+        {
+            return this.CheckAreFigureInCell(cell);
+        }
+        public  void AddFiguresOnBoard(List<IFigure> Figurs)
+        {
+            if (CanAddFiguresOnBoard())
+            {
+                int cellIndex = 0;
+                for (int i = 0; i < Figurs.Count; i++)
+                {
+                    if (i == Figurs.Count / 2)
+                    {
+                        cellIndex = 56;
+                    }
+                    else if (i == Figurs.Count - 8)
+                    {
+                        cellIndex = 48;
+                    }
+                    this.Cells[cellIndex].Figur = Figurs[i];
+                    this.Cells[cellIndex].Figur.Number = this.Cells[cellIndex].Number;
+                    this.Cells[cellIndex].Figur.Letter = this.Cells[cellIndex].Letter;
+                    this.Cells[cellIndex].Figur.colorBackgraund = (ConsoleColor)this.Cells[cellIndex].Color;
+                    cellIndex++;
+                }
+            }
+        }
+        public  void AddKnightToBoard(Cell cell, Knight knight)
+        {
+            this.Cells.FirstOrDefault(c => c == cell).Figur = knight;
+            this.Cells.FirstOrDefault(c => c == cell).Figur.Number = cell.Number;
+            this.Cells.FirstOrDefault(c => c == cell).Figur.Letter = cell.Letter;
+        }
+        private  bool CanAddFiguresOnBoard()
+        {
+            for (int i = 0; i < this.Cells.Count; i++)
+            {
+                if (this.Cells[i].Figur != null)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Game;
+using UI.UIFunctions;
 
-namespace Chess.UI
+namespace Chess.UserInterface
 {
     /// <summary>
     /// This class is responsible for working with the User Interface
@@ -19,9 +20,10 @@ namespace Chess.UI
         public void Start()
         {
             taskMethods = new TaskMethods();
-            Console.Clear();
-            Console.WriteLine("1)PLay\t2)Knight\tESC)Exit");
-            ConsoleKey key = Console.ReadKey().Key;
+            UIFunction.Write("",true);
+            UIFunction.Clear();
+            UIFunction.Write("1)PLay\t2)Knight\tESC)Exit",true);
+            ConsoleKey key = UIFunction.GetKey();
             switch (key)
             {
                 case ConsoleKey.Escape:
@@ -41,7 +43,7 @@ namespace Chess.UI
         }
         private void History()
         {
-            Console.WriteLine(taskMethods.GetHistory());
+            UIFunction.Write(taskMethods.GetHistory(),true);
         }
         /// <summary>
         /// The function is starting for play with only knight
@@ -53,8 +55,8 @@ namespace Chess.UI
             string endPos;
             while (true)
             {
-                Console.Write("\nPlease select start cell for  knight : ");
-                startPos = Console.ReadLine();
+                UIFunction.Write("\nPlease select start cell for  knight : ");
+                startPos = UIFunction.Read();
                 if (taskMethods.GetCellByPosition(startPos) != null)
                 {
                     break;
@@ -65,8 +67,8 @@ namespace Chess.UI
             this.Print();
             while (true)
             {
-                Console.Write("\nPlease select target cell : ");
-                endPos = Console.ReadLine();
+                UIFunction.Write("\nPlease select target cell : ");
+                endPos = UIFunction.Read();
                 if (taskMethods.GetCellByPosition(endPos) != null)
                 {
                     break;
@@ -75,9 +77,10 @@ namespace Chess.UI
             List<string> steps = taskMethods.GetKnightRoad(startPos, endPos);
             for (int i = 0; i < steps.Count - 1; i++)
             {
+                taskMethods.ClearPositions();
                 taskMethods.GetCellByPosition(steps[i]);
                 taskMethods.GetCellByPosition(steps[i + 1]);
-                if (taskMethods.CanFigureMove(out bool a))
+                if (taskMethods.CanFigureMove())
                 {
                     Thread.Sleep(1000);
                     this.Print();
@@ -87,9 +90,12 @@ namespace Chess.UI
 
             foreach (string item in steps)
             {
-                Console.Write($"\n{item}");
+                UIFunction.Write($"\n{item}");
             }
-            Console.WriteLine($"\nThe total moves count is : {steps.Count - 1}");
+            UIFunction.Write($"\nThe total moves count is : {steps.Count - 1}",true);
+            UIFunction.Write("PLease press any number to go start...",true);
+            UIFunction.GetKey();
+            this.Start();
         }
         /// <summary>
         /// This function launches two players game process
@@ -112,8 +118,8 @@ namespace Chess.UI
                 {
                     while (true)
                     {
-                        Console.Write("\nPlease select a figure start position for move : ");
-                        startPos = Console.ReadLine();
+                        UIFunction.Write("\nPlease select a figure start position for move : ");
+                        startPos = UIFunction.Read();
                         if (taskMethods.GetCellByPosition(startPos) != null)
                         {
                             break;
@@ -128,7 +134,7 @@ namespace Chess.UI
                                 IsGoWhite = false;
                                 break;
                             }
-                            Console.WriteLine("Please select the Green Figure Position");
+                            UIFunction.Write("Please select the Green Figure Position",true);
                         }
                         else
                         {
@@ -137,37 +143,37 @@ namespace Chess.UI
                                 IsGoWhite = true;
                                 break;
                             }
-                            Console.WriteLine("Please select the Red Figure Position");
+                            UIFunction.Write("Please select the Red Figure Position",true);
                         }
                     }
                     else
                     {
-                        Console.WriteLine("please select the position where there is a figure");
+                        UIFunction.Write("please select the position where there is a figure",true);
                     }
                     taskMethods.ClearPositions();
                 }
                 while (true)
                 {
-                    Console.Write("Please select target position : ");
-                    endPos = Console.ReadLine();
+                    UIFunction.Write("Please select target position : ");
+                    endPos = UIFunction.Read();
                     if (taskMethods.GetCellByPosition(endPos) != null)
                     {
                         break;
                     }
-                    Console.WriteLine("You cant move the selected position please select another position");
+                    UIFunction.Write("You cant move the selected position please select another position",true);
                 }
 
-                if (taskMethods.CanFigureMove(out isMat))
+                if (taskMethods.CanFigureMove())
                 {
                     if (taskMethods.IsChangePawn())
                     {
-                        Console.WriteLine("\n");
+                        UIFunction.Write("\n",true);
                         leftCursor = Console.CursorLeft;
                         topCursor = Console.CursorTop;
                         figureName = this.SelectChangedFigure();
                         taskMethods.ChangePawn(figureName);
                     }
-                    if (isMat)
+                    if (taskMethods.IsMat())
                     {
                         this.Print();
                         string winerColor;
@@ -179,18 +185,18 @@ namespace Chess.UI
                         {
                             winerColor = "Green";
                         }
-                        Console.WriteLine("\nThe game is over.Winer is " + winerColor);
+                        UIFunction.Write("\nThe game is over.Winer is " + winerColor,true);
                         IsGoWhite = true;
                         this.History();
-                        Console.ReadKey();
+                        UIFunction.GetKey();
                         this.Start();
                     }
                     if (taskMethods.IsPat())
                     {
                         this.Print();
-                        Console.WriteLine("\nThe game is over.");
+                        UIFunction.Write("\nThe game is over.",true);
                         IsGoWhite = true;
-                        Console.ReadKey();
+                        UIFunction.GetKey();
                         this.Start();
                     }
                     this.PlayView();
@@ -203,7 +209,7 @@ namespace Chess.UI
                 {
                     IsGoWhite = true;
                 }
-                Console.WriteLine("PLease do all angain");
+                UIFunction.Write("PLease do all angain",true);
             }
         }
         /// <summary>
@@ -211,10 +217,10 @@ namespace Chess.UI
         /// </summary>
         private void Print()
         {
-            Console.Clear();
+            UIFunction.Clear();
             for (int i = 0; i < this.taskMethods.board.Width / 2; i++)
             {
-                Console.Write($"{this.taskMethods.board.Numbers[i]}|");
+                UIFunction.Write($"{this.taskMethods.board.Numbers[i]}|");
                 for (int j = (i * 8); j < ((i * 8) + 8); j++)
                 {
                     string toWrite;
@@ -235,28 +241,28 @@ namespace Chess.UI
                         toWrite = $"{(this.taskMethods.board.Cells[j].Figur.GetType().Name)[0]}{(this.taskMethods.board.Cells[j].Figur.GetType().Name)[1]}";
                         Console.ForegroundColor = (ConsoleColor)this.taskMethods.board.Cells[j].Figur.Color;
                     }
-                    Console.Write(toWrite);
+                    UIFunction.Write(toWrite);
                 }
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.BackgroundColor = ConsoleColor.Black;
-                Console.WriteLine();
+                UIFunction.Write("",true);
             }
-            Console.Write("  ");
+            UIFunction.Write("  ");
             for (int i = 0; i < this.taskMethods.board.Letters.Count; i++)
             {
-                Console.Write($"{this.taskMethods.board.Letters[i]} ");
+                UIFunction.Write($"{this.taskMethods.board.Letters[i]} ");
             }
         }
         private string SelectChangedFigure()
         {
             Console.SetCursorPosition(leftCursor,topCursor);
             string changedFigureName ="";
-            Console.WriteLine("Please select a figur to change with your pawn");
+            UIFunction.Write("Please select a figur to change with your pawn",true);
             for (int i = 0; i < FiguresNames.Count; i++)
             {
-                Console.WriteLine($"{FiguresNames[i].Item1}){FiguresNames[i].Item2}");
+                UIFunction.Write($"{FiguresNames[i].Item1}){FiguresNames[i].Item2}",true);
             }
-            ConsoleKey key = Console.ReadKey().Key;
+            ConsoleKey key = UIFunction.GetKey();
             switch (key)
             {
                 case ConsoleKey.NumPad1:

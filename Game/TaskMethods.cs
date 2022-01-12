@@ -12,19 +12,14 @@ namespace Game
         public List<IFigure> Figurs = new List<IFigure>();
         private Cell startCell;
         private Cell endCell;
-        FunctionsForBoard FunctionsForBoard = new FunctionsForBoard();
-        TasksForKnight TasksForKnight = new TasksForKnight();
-        TwoPlayersLogic TwoPlayersLogic = new TwoPlayersLogic();
+        private Knight knight;
+        private TwoPlayersLogic twoPlayersLogic = new TwoPlayersLogic();
+        
 
         #region Task For Board
-        /// <summary>
-        /// This function gives the cell coordinates
-        /// </summary>
-        /// <param name="position">The position of the cell in which we will find the coordinates</param>
-        /// <returns>Cell by position</returns>
         public Cell GetCellByPosition(string position)
         {
-            Cell cell = FunctionsForBoard.GetCellByPosition(position, this.board);
+            Cell cell = this.board.GetCellByPosition(position);
             if (startCell == null)
             {
                 startCell = cell;
@@ -35,82 +30,59 @@ namespace Game
             }
             return cell;
         }
-        /// <summary>
-        /// Function for creating chess figures
-        /// </summary>
-        /// <returns>The created Figure list</returns>
         public void CreateFigires()
         {
-            Figurs = FunctionsForBoard.CreateFigires();
+            Figurs = this.board.CreateFigires();
         }
-        /// <summary>
-        /// This function add the created figures in board
-        /// </summary>
-        /// <returns>The already finished board lined up with the figures</returns>
         public void AddFiguresOnBoard()
         {
-            this.board = FunctionsForBoard.AddFiguresOnBoard(this.Figurs, this.board);
+            this.board.AddFiguresOnBoard(this.Figurs);
         }
-        /// <summary>
-        /// This function add Knight in the board
-        /// </summary>
-        /// <param name="cell">The cell you want to add</param>
         public void AddKnightToBoard(string position)
         {
-            Cell cell = FunctionsForBoard.GetCellByPosition(position, this.board);
-            Knight knight = (Knight)this.Figurs[0];
-            FunctionsForBoard.AddKnightToBoard(cell, this.board, knight);
+            Cell cell = this.board.GetCellByPosition(position);
+            this.board.AddKnightToBoard(cell, knight);
         }
         public bool CheckCellFigure()
         {
-            return FunctionsForBoard.ChekCellFigure(startCell, this.board);
+            return this.board.ChekCellFigure(startCell);
         }
         #endregion
 
         #region Knight Tasks
-        /// <summary>
-        /// This function create a knight
-        /// </summary>
-        /// <returns>The created Knight</returns>
         public void CreateOnlyKnight()
         {
-            Knight knight = TasksForKnight.CreateOnlyKnight();
-            Figurs.Add(knight);
+            knight = new Knight(FigursColors.Green);
         }
-        /// <summary>
-        /// This function get the Knight shortest Road
-        /// </summary>
-        /// <param name="startCell">The Knight Cell</param>
-        /// <param name="endCell">The target Cell</param>
-        /// <returns>The horse shortest Road List by steps </returns>
         public List<string> GetKnightRoad(string startPosition, string endPosition)
         {
             this.GetCellByPosition(startPosition);
             this.GetCellByPosition(endPosition);
-            return TasksForKnight.GetKnightRoad(startCell, endCell, this.board);
+            return knight.GetKnightRoad(startCell, endCell, this.board);
         }
         #endregion
 
         #region Two Player Logic
+        
         /// <summary>
         /// This function determines whether the figure can be moved
         /// </summary>
         /// <param name="startCell">The figure start cell</param>
         /// <param name="endCell">The target cell</param>
         /// <returns>True if the figure can move.Otherwise false</returns>
-        public bool CanFigureMove(out bool isMat)
+        public bool CanFigureMove()
         {
-            bool isFigureMove = TwoPlayersLogic.CanFigureMove(startCell, endCell, this.board, FunctionsForBoard, out isMat);
+            bool isFigureMove = twoPlayersLogic.CanMove(startCell, endCell,this.board);
             return isFigureMove;
         }
         public bool IsPat()
         {
-            return this.TwoPlayersLogic.IsPat(endCell.Figur.Color,this.board,this.FunctionsForBoard);
+            return this.twoPlayersLogic.IsPat(endCell.Figur.Color, this.board);
         }
         public void ChangePawn(string figureName)
         {
             IFigure figure = this.GetFigureType(figureName, endCell.Figur.Color);
-            this.TwoPlayersLogic.ChangeFigure(endCell, figure, this.board, this.FunctionsForBoard);
+            this.twoPlayersLogic.ChangeFigure(endCell, figure, this.board);
         }
         public bool IsChangePawn()
         {
@@ -123,17 +95,22 @@ namespace Game
             }
             return false;
         }
+        public bool IsMat()
+        {
+            return twoPlayersLogic.IsMat(endCell, board);
+        }
         #endregion
 
         #region Another Tasks
-
+        
         public string GetHistory()
         {
             string history = "";
             for (int i = 0; i < this.board.History.Count; i++)
             {
                 history += $"{this.board.History[i].Item1.Color} {this.board.History[i].Item1.GetType().Name} " +
-                    $" {this.board.History[i].Item2.Item1.Letter}{(int)this.board.History[i].Item2.Item1.Number} - {this.board.History[i].Item2.Item2.Letter}{(int)this.board.History[i].Item2.Item2.Number}\n";
+                    $" {this.board.History[i].Item2.Item1.Letter}{(int)this.board.History[i].Item2.Item1.Number}"+
+                    $" - {this.board.History[i].Item2.Item2.Letter}{(int)this.board.History[i].Item2.Item2.Number}\n";
             }
             return history;
         }
