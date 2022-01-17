@@ -75,7 +75,7 @@ namespace Game
             bool isFigureMove = twoPlayersLogic.CanMove(startCell, endCell,this.board);
             if (isFigureMove)
             {
-                this.UpdateInfo(endCell);
+                this.UpdateInfo(startCell,endCell);
             }
             return isFigureMove;
         }
@@ -103,10 +103,10 @@ namespace Game
         {
             return twoPlayersLogic.IsMat(endCell, board);
         }
-        private void UpdateInfo(Cell cell)
+        private void UpdateInfo(Cell startCell,Cell endCell)
         {
-            this.Figurs.FirstOrDefault(f => f.FigureHistory[f.FigureHistory.Count - 1].Item2 == cell).Letter = cell.Letter;
-            this.Figurs.FirstOrDefault(f => f.FigureHistory[f.FigureHistory.Count - 1].Item2 == cell).Number = cell.Number;
+            this.Figurs.FirstOrDefault(f => f.Number == startCell.Number && f.Letter == endCell.Letter).Letter = endCell.Letter;
+            this.Figurs.FirstOrDefault(f => f.Number == startCell.Number && f.Letter == endCell.Letter). Number = endCell.Number;
         }
         #endregion
 
