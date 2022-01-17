@@ -73,6 +73,10 @@ namespace Game
         public bool CanFigureMove()
         {
             bool isFigureMove = twoPlayersLogic.CanMove(startCell, endCell,this.board);
+            if (isFigureMove)
+            {
+                this.UpdateInfo(endCell);
+            }
             return isFigureMove;
         }
         public bool IsPat()
@@ -98,6 +102,11 @@ namespace Game
         public bool IsMat()
         {
             return twoPlayersLogic.IsMat(endCell, board);
+        }
+        private void UpdateInfo(Cell cell)
+        {
+            this.Figurs.FirstOrDefault(f => f.FigureHistory[f.FigureHistory.Count - 1].Item2 == cell).Letter = cell.Letter;
+            this.Figurs.FirstOrDefault(f => f.FigureHistory[f.FigureHistory.Count - 1].Item2 == cell).Number = cell.Number;
         }
         #endregion
 
