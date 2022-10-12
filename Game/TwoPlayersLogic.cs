@@ -232,7 +232,7 @@ namespace Game
         private bool CanPawnEat(Cell startCell, Cell endCell, Board board)
         {
             figur = startCell.Figur;
-            if (!figur.IsMove(endCell))
+            if (figur.IsMove(endCell))
             {
                 if (endCell.Figur == null)
                 {
